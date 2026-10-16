@@ -30,6 +30,9 @@ const ui = t(Astro.props.lang);
         el.hidden = el.dataset.state !== 'open';
       });
     });
+    // Each open-now list holds the same shops, so count the first one.
+    const openCount = document.querySelector('[data-open-only]')?.querySelectorAll('[data-state="open"]').length ?? 0;
+    document.querySelectorAll<HTMLElement>('[data-open-count]').forEach((el) => (el.textContent = String(openCount)));
     document.querySelectorAll<HTMLElement>('[data-none-open]').forEach((el) => (el.hidden = anyOpen));
     document.querySelectorAll<HTMLElement>('[data-needs-js]').forEach((el) => (el.hidden = true));
   };

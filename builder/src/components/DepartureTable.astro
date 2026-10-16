@@ -2,6 +2,7 @@
 // Rows for the next 24 hours are rendered at build time; the browser hides departed
 // rows, shows the next `limit` and keeps the "in X min" column current. Elements with data-live
 // carry the key of a scheduled time; TransitScript adds the real-time delay next to them.
+// The Köln variant draws each connection as a route line instead of a table row.
 import { t, type Lang } from '../lib/i18n';
 import { clock, type Departure } from '../lib/transit';
 
@@ -17,96 +18,118 @@ const minutes = (a: number, b: number) => Math.round((b - a) / 60_000);
 const short = (dest: string) => dest.replace(/^Köln\s+/, '');
 ---
 
-<div class="table-wrap" data-departures data-limit={limit}>
-  <table class={`departures departures-${variant}`}>
-    <thead>
-      {
-        variant === 'koeln' ? (
-          <tr>
-            <th scope="col">{ui.departure}</th>
-            <th scope="col" class="col-line">{ui.line}</th>
-            <th scope="col">{ui.change}</th>
-            <th scope="col">{ui.arrival}</th>
-          </tr>
-        ) : (
+{
+  variant === 'koeln' ? (
+    <div class="journeys" data-departures data-limit={limit}>
+      {rows.map((d, i) => (
+        <div
+          class="journey"
+          data-t={d.t}
+          data-k={d.k}
+          data-kb={d.conn?.kb}
+          data-kd={d.conn?.kd}
+          data-bus-arr={d.conn?.busArr}
+          data-dep={d.conn?.dep}
+          hidden={i >= limit}
+        >
+          <div>
+            <div class="big-t">
+              <span data-live={d.k}>{clock(d.t)}</span>
+            </div>
+            <span class="sub">
+              {d.stop} <span class="in" data-in />
+            </span>
+          </div>
+          <div class="route">
+            <div class="track">
+              <span class="stop-dot"><i />Geyen</span>
+              <span class={`seg seg-${d.mode}`}>
+                <span class={`line line-${d.mode}`}>{d.line}</span>
+              </span>
+              {d.conn?.via && (
+                <>
+                  <span class="stop-dot">
+                    <i />
+                    <span>
+                      {d.conn.via} <span data-live={d.conn.kd}>{clock(d.conn.dep!)}</span>
+                    </span>
+                  </span>
+                  <span class={`seg seg-${d.conn.mode}`}>
+                    <span class={`line line-${d.conn.mode}`}>{d.conn.line}</span>
+                  </span>
+                </>
+              )}
+              <span class="stop-dot"><i />{short(d.conn!.dest)}</span>
+            </div>
+            {d.conn?.via && (
+              <span class="risk" data-risk hidden>
+                {ui.connectionAtRisk}
+              </span>
+            )}
+          </div>
+          <div class="arr">
+            <div class="big-t">
+              <span data-live={d.conn!.ka}>{clock(d.conn!.arr)}</span>
+            </div>
+            <span class="sub">
+              {minutes(d.t, d.conn!.arr)} {ui.min} · {d.conn!.dest}
+            </span>
+          </div>
+        </div>
+      ))}
+      <p class="empty" data-departures-empty hidden={rows.length > 0}>{ui.noDepartures}</p>
+    </div>
+  ) : (
+    <div class="table-wrap" data-departures data-limit={limit}>
+      <table class={`departures departures-${variant}`}>
+        <thead>
           <tr>
             <th scope="col">{ui.departure}</th>
             <th scope="col">{ui.line}</th>
-            {variant === 'home' && <th scope="col">{ui.stop}</th>}
+            {variant === 'home' && <th scope="col" class="col-stop">{ui.stop}</th>}
             <th scope="col">{ui.direction}</th>
-            {variant === 'stop' && <th scope="col">{ui.toCologne}</th>}
+            {variant === 'stop' && <th scope="col" class="conn">{ui.toCologne}</th>}
           </tr>
-        )
-      }
-    </thead>
-    <tbody>
-      {
-        rows.map((d, i) => (
-          <tr
-            data-t={d.t}
-            data-k={d.k}
-            data-kb={d.conn?.kb}
-            data-kd={d.conn?.kd}
-            data-bus-arr={d.conn?.busArr}
-            data-dep={d.conn?.dep}
-            hidden={i >= limit}
-          >
-            <td class="time">
-              <strong data-live={d.k}>{clock(d.t)}</strong>
-              <span class="in" data-in />
-              {variant === 'koeln' && (
-                <span class="sub">
-                  <span class={`line line-${d.mode} line-inline`}>{d.line}</span> {d.stop}
-                </span>
-              )}
-            </td>
-            <td class="col-line">
-              <span class={`line line-${d.mode}`}>{d.line}</span>
-            </td>
-            {variant === 'home' && <td>{d.stop}</td>}
-            {variant !== 'koeln' && <td>{d.headsign}</td>}
-            {variant === 'stop' && (
-              <td class="conn">
-                {d.conn ? (
-                  <>
-                    {ui.arrivalShort} <span data-live={d.conn.ka}>{clock(d.conn.arr)}</span> {short(d.conn.dest)}
-                    {d.conn.via ? ` · ${d.conn.line}` : ` · ${ui.direct}`}
-                  </>
-                ) : (
-                  '–'
+        </thead>
+        <tbody>
+          {
+            rows.map((d, i) => (
+              <tr
+                data-t={d.t}
+                data-k={d.k}
+                data-kb={d.conn?.kb}
+                data-kd={d.conn?.kd}
+                data-bus-arr={d.conn?.busArr}
+                data-dep={d.conn?.dep}
+                hidden={i >= limit}
+              >
+                <td class="time">
+                  <strong data-live={d.k}>{clock(d.t)}</strong>
+                  <span class="in" data-in />
+                </td>
+                <td>
+                  <span class={`line line-${d.mode}`}>{d.line}</span>
+                </td>
+                {variant === 'home' && <td class="col-stop">{d.stop}</td>}
+                <td>{d.headsign}</td>
+                {variant === 'stop' && (
+                  <td class="conn">
+                    {d.conn ? (
+                      <>
+                        {ui.arrivalShort} <span data-live={d.conn.ka}>{clock(d.conn.arr)}</span> {short(d.conn.dest)}
+                        {d.conn.via ? ` · ${d.conn.line}` : ` · ${ui.direct}`}
+                      </>
+                    ) : (
+                      '–'
+                    )}
+                  </td>
                 )}
-              </td>
-            )}
-            {variant === 'koeln' && d.conn && (
-              <>
-                <td>
-                  {d.conn.via ? (
-                    <>
-                      {d.conn.via} <span data-live={d.conn.kb}>{clock(d.conn.busArr!)}</span>
-                      <span class="sub">
-                        <span class={`line line-${d.conn.mode}`}>{d.conn.line}</span>{' '}
-                        <span data-live={d.conn.kd}>{clock(d.conn.dep!)}</span>
-                      </span>
-                      <span class="risk" data-risk hidden>
-                        {ui.connectionAtRisk}
-                      </span>
-                    </>
-                  ) : (
-                    ui.direct
-                  )}
-                </td>
-                <td>
-                  <strong data-live={d.conn.ka}>{clock(d.conn.arr)}</strong>
-                  <span class="sub">
-                    {d.conn.dest} · {minutes(d.t, d.conn.arr)} {ui.min}
-                  </span>
-                </td>
-              </>
-            )}
-          </tr>
-        ))
-      }
-    </tbody>
-  </table>
-  <p class="empty" data-departures-empty hidden={rows.length > 0}>{ui.noDepartures}</p>
-</div>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+      <p class="empty" data-departures-empty hidden={rows.length > 0}>{ui.noDepartures}</p>
+    </div>
+  )
+}

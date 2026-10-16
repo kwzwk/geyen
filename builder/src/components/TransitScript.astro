@@ -58,7 +58,7 @@ const ui = t(lang);
     document.querySelectorAll<HTMLElement>('[data-departures]').forEach((table) => {
       const limit = Number(table.dataset.limit ?? 5);
       let shown = 0;
-      table.querySelectorAll<HTMLElement>('tr[data-t]').forEach((row) => {
+      table.querySelectorAll<HTMLElement>('[data-t]').forEach((row) => {
         const t = Number(row.dataset.t) + delayMs(row.dataset.k);
         const cancelled = delays[row.dataset.k ?? ''] === 'x';
         row.classList.toggle('cancelled', cancelled);
