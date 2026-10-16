@@ -1,4 +1,13 @@
 ---
+import '@fontsource-variable/fraunces/full.css';
+import '@fontsource-variable/fraunces/full-italic.css';
+import '@fontsource/ibm-plex-sans/400.css';
+import '@fontsource/ibm-plex-sans/500.css';
+import '@fontsource/ibm-plex-sans/600.css';
+import '@fontsource/ibm-plex-mono/400.css';
+import '@fontsource/ibm-plex-mono/500.css';
+import '@fontsource/ibm-plex-mono/600.css';
+import '@fontsource/ibm-plex-mono/700.css';
 import '../styles/global.css';
 import { NAV, t, href, formatDate, type Lang } from '../lib/i18n';
 import { site, status } from '../lib/content';
@@ -10,9 +19,14 @@ interface Props {
 }
 const { lang, slug, title } = Astro.props;
 const ui = t(lang);
-const other: Lang = lang === 'de' ? 'en' : 'de';
 const pageTitle = title ? `${title} – ${site.title}` : `${site.title} – ${ui.tagline}`;
 const canonical = new URL(href(lang, slug), Astro.site);
+const locale = lang === 'de' ? 'de-DE' : 'en-GB';
+const now = new Date();
+const today = new Intl.DateTimeFormat(locale, { timeZone: 'Europe/Berlin', weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric' }).format(now);
+const time = new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' }).format(now);
+const pad = (n: number) => String(n + 1).padStart(2, '0');
+const LANG_CODES: Lang[] = ['de', 'en'];
 ---
 
 <!doctype html>
@@ -26,44 +40,115 @@ const canonical = new URL(href(lang, slug), Astro.site);
     <link rel="alternate" hreflang="de" href={new URL(href('de', slug), Astro.site)} />
     <link rel="alternate" hreflang="en" href={new URL(href('en', slug), Astro.site)} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f7f3ea" media="(prefers-color-scheme: light)" />
   </head>
   <body>
     <a class="skip" href="#main">{ui.skip}</a>
     <header class="site-header">
+      <div class="statusbar" aria-hidden="true">
+        <div class="wrap">
+          <span>50259 Pulheim-Geyen</span>
+          <span class="hide-sm">50.9817°N 6.7864°E</span>
+          <span class="hide-sm" data-today data-locale={locale}>{today}</span>
+          <span class="grow"></span>
+          <span class="clock" data-clock>{time}</span>
+        </div>
+      </div>
       <div class="wrap header-row">
         <a class="brand" href={href(lang, '')}>
           <span class="brand-name">Geyen</span>
           <span class="brand-sub">{ui.tagline}</span>
         </a>
-        <a class="lang" href={href(other, slug)} hreflang={other} lang={other}>{ui.switchLang}</a>
-      </div>
-      <nav class="wrap nav" aria-label={lang === 'de' ? 'Hauptnavigation' : 'Main navigation'}>
-        <ul>
-          {
-            NAV.map((item) => (
-              <li>
-                <a href={href(lang, item.slug)} aria-current={item.slug === slug ? 'page' : undefined}>
-                  {item[lang]}
+        <span class="seg" aria-label={ui.language}>{
+            LANG_CODES.map((l) =>
+              l === lang ? (
+                <span aria-current="true">{l.toUpperCase()}</span>
+              ) : (
+                <a href={href(l, slug)} hreflang={l} lang={l}>
+                  {l.toUpperCase()}
                 </a>
-              </li>
-            ))
-          }
-        </ul>
+              ),
+            )
+          }</span>
+      </div>
+      <nav class="nav" aria-label={lang === 'de' ? 'Hauptnavigation' : 'Main navigation'}>
+        <div class="wrap">
+          <ul>
+            {
+              NAV.map((item, i) => (
+                <li>
+                  <a href={href(lang, item.slug)} aria-current={item.slug === slug ? 'page' : undefined}>
+                    <small aria-hidden="true">{pad(i)}</small>
+                    {item[lang]}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
       </nav>
     </header>
     <main id="main" class="wrap">
       <slot />
     </main>
     <footer class="site-footer">
+      <span class="sticker paper hide-sm" aria-hidden="true">{ui.stickerMade} ✶</span>
       <div class="wrap">
-        <p>{ui.footerNote}</p>
-        <p class="footer-links">
-          <a href={href(lang, 'impressum')}>{ui.impressum}</a>
-          <a href={href(lang, 'datenschutz')}>{ui.privacy}</a>
-          {status.fetchedAt && <span>{ui.updated}: {formatDate(lang, status.fetchedAt)}</span>}
-        </p>
+        <div class="spec">
+          <div>
+            <span class="label">{ui.principle}</span>
+            <p>{ui.footerNote}</p>
+          </div>
+          <div>
+            <span class="label">{ui.legal}</span>
+            <p>
+              <a href={href(lang, 'impressum')}>{ui.impressum}</a><br />
+              <a href={href(lang, 'datenschutz')}>{ui.privacy}</a>
+            </p>
+          </div>
+          <div>
+            <span class="label">{ui.updated}</span>
+            <p class="mono">{status.fetchedAt ? formatDate(lang, status.fetchedAt) : '–'}</p>
+          </div>
+          <div>
+            <span class="label">{ui.language}</span>
+            <p><span class="seg">{
+            LANG_CODES.map((l) =>
+              l === lang ? (
+                <span aria-current="true">{l.toUpperCase()}</span>
+              ) : (
+                <a href={href(l, slug)} hreflang={l} lang={l}>
+                  {l.toUpperCase()}
+                </a>
+              ),
+            )
+          }</span></p>
+          </div>
+        </div>
+        <div class="footer-word" aria-hidden="true">Geyen.</div>
       </div>
     </footer>
+    <script>
+      // Keeps the clock and date in the status strip current (German local time).
+      const clock = document.querySelector<HTMLElement>('[data-clock]');
+      const today = document.querySelector<HTMLElement>('[data-today]');
+      const tick = () => {
+        const now = new Date();
+        if (clock) {
+          clock.textContent = new Intl.DateTimeFormat('de-DE', {
+            timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit', second: '2-digit',
+          }).format(now);
+        }
+        if (today) {
+          today.textContent = new Intl.DateTimeFormat(today.dataset.locale, {
+            timeZone: 'Europe/Berlin', weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric',
+          }).format(now);
+        }
+      };
+      tick();
+      setInterval(tick, 1000);
+    </script>
   </body>
 </html>

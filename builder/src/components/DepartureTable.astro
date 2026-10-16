@@ -32,9 +32,9 @@ const short = (dest: string) => dest.replace(/^Köln\s+/, '');
           <tr>
             <th scope="col">{ui.departure}</th>
             <th scope="col">{ui.line}</th>
-            {variant === 'home' && <th scope="col">{ui.stop}</th>}
+            {variant === 'home' && <th scope="col" class="col-stop">{ui.stop}</th>}
             <th scope="col">{ui.direction}</th>
-            {variant === 'stop' && <th scope="col">{ui.toCologne}</th>}
+            {variant === 'stop' && <th scope="col" class="conn">{ui.toCologne}</th>}
           </tr>
         )
       }
@@ -63,7 +63,7 @@ const short = (dest: string) => dest.replace(/^Köln\s+/, '');
             <td class="col-line">
               <span class={`line line-${d.mode}`}>{d.line}</span>
             </td>
-            {variant === 'home' && <td>{d.stop}</td>}
+            {variant === 'home' && <td class="col-stop">{d.stop}</td>}
             {variant !== 'koeln' && <td>{d.headsign}</td>}
             {variant === 'stop' && (
               <td class="conn">
@@ -82,10 +82,16 @@ const short = (dest: string) => dest.replace(/^Köln\s+/, '');
                 <td>
                   {d.conn.via ? (
                     <>
-                      {d.conn.via} <span data-live={d.conn.kb}>{clock(d.conn.busArr!)}</span>
-                      <span class="sub">
-                        <span class={`line line-${d.conn.mode}`}>{d.conn.line}</span>{' '}
-                        <span data-live={d.conn.kd}>{clock(d.conn.dep!)}</span>
+                      <span class="route">
+                        <span class="hub">
+                          <small>{d.conn.via}</small>
+                          <span data-live={d.conn.kb}>{clock(d.conn.busArr!)}</span>
+                        </span>
+                        <span class="wire" />
+                        <span class="leg">
+                          <span class={`line line-${d.conn.mode}`}>{d.conn.line}</span>
+                          <span data-live={d.conn.kd}>{clock(d.conn.dep!)}</span>
+                        </span>
                       </span>
                       <span class="risk" data-risk hidden>
                         {ui.connectionAtRisk}
@@ -95,7 +101,7 @@ const short = (dest: string) => dest.replace(/^Köln\s+/, '');
                     ui.direct
                   )}
                 </td>
-                <td>
+                <td class="arr">
                   <strong data-live={d.conn.ka}>{clock(d.conn.arr)}</strong>
                   <span class="sub">
                     {d.conn.dest} · {minutes(d.t, d.conn.arr)} {ui.min}

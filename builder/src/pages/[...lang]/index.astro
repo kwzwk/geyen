@@ -6,9 +6,9 @@ import LinkList from '../../components/LinkList.astro';
 import OpenNowScript from '../../components/OpenNowScript.astro';
 import DepartureTable from '../../components/DepartureTable.astro';
 import TransitScript from '../../components/TransitScript.astro';
-import { transit, nextDepartures } from '../../lib/transit';
+import { transit, nextDepartures, toKoeln, clock } from '../../lib/transit';
 import { t, href, langPaths, toLang } from '../../lib/i18n';
-import { allHeadlines, highlighted, events, shops, links } from '../../lib/content';
+import { allHeadlines, highlighted, events, shops, links, label } from '../../lib/content';
 
 export const getStaticPaths = langPaths;
 const lang = toLang(Astro.params.lang);
@@ -16,20 +16,95 @@ const ui = t(lang);
 // Headlines mentioning Geyen first, then the newest of the rest.
 const headlines = [...highlighted, ...allHeadlines.filter((h) => !highlighted.includes(h))].slice(0, 8);
 const withHours = shops.filter((s) => s.week);
+const nextEvent = events[0];
+const dayMonth = (iso: string) =>
+  new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: '2-digit' }).format(new Date(iso));
+// The hero readouts show the first upcoming row; TransitScript hides the ones already gone.
+const READOUT_ROWS = 40;
+const alarm = new Set(['112', '110']);
 ---
 
 <Base lang={lang} slug="">
-  <div class="grid">
+  <section class="hero">
+    <span class="sticker orange hide-sm at-hero" aria-hidden="true">{ui.stickerNoAds}</span>
+    <h1>
+      {ui.heroLead}{' '}
+      <em>
+        {ui.heroAccent}
+        <svg class="doodle" viewBox="0 0 240 28" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true">
+          <path d="M4 18c30-9 52-11 80-6s40 8 70 1 48-10 82-4"></path>
+        </svg>
+      </em>
+    </h1>
+    <div class="readouts">
+      {
+        transit && (
+          <div data-departures data-limit="1">
+            {nextDepartures.slice(0, READOUT_ROWS).map((d, i) => (
+              <a href={href(lang, 'verkehr')} data-t={d.t} data-k={d.k} hidden={i > 0}>
+                <span class="label">{ui.nextBus}</span>
+                <b><span data-live={d.k}>{clock(d.t)}</span></b>
+                <span class="sub">
+                  <span data-in />
+                  {d.line} → {d.headsign}
+                </span>
+              </a>
+            ))}
+          </div>
+        )
+      }
+      {
+        transit && toKoeln.length > 0 && (
+          <div data-departures data-limit="1">
+            {toKoeln.slice(0, READOUT_ROWS).map((d, i) => (
+              <a href={href(lang, 'verkehr')} data-t={d.t} data-k={d.k} hidden={i > 0}>
+                <span class="label">{ui.toCologne}</span>
+                <b><span data-live={d.k}>{clock(d.t)}</span></b>
+                <span class="sub">
+                  {ui.arrivalShort} {clock(d.conn!.arr)} {d.conn!.dest}
+                </span>
+              </a>
+            ))}
+          </div>
+        )
+      }
+      {
+        withHours.length > 0 && (
+          <div>
+            <a href={href(lang, 'einkaufen')}>
+              <span class="label">{ui.openNow}</span>
+              <b><span data-open-count>–</span> / {withHours.length}</b>
+              <span class="sub">{ui.shopsOpen}</span>
+            </a>
+          </div>
+        )
+      }
+      {
+        nextEvent && (
+          <div>
+            <a href={href(lang, 'termine')}>
+              <span class="label">{ui.nextEvent}</span>
+              <b>{dayMonth(nextEvent.date)}</b>
+              <span class="sub">{nextEvent.title}</span>
+            </a>
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <div class="grid grid-home">
     <section class="card span-2">
       <h2>{ui.latestHeadlines}</h2>
       <HeadlineList lang={lang} items={headlines} />
-      <p class="more"><a href={href(lang, 'aktuelles')}>{ui.allNews} →</a></p>
+      <p class="more"><a href={href(lang, 'aktuelles')}>{ui.allNews} <span class="arrow">→</span></a></p>
     </section>
 
     <section class="card">
       <h2>{ui.nextEvents}</h2>
+      <span class="sticker round hide-sm at-corner" aria-hidden="true"><span><b>1932</b>SC Germania</span></span>
       <EventList lang={lang} items={events.slice(0, 3)} />
-      <p class="more"><a href={href(lang, 'termine')}>{ui.allEvents} →</a></p>
+      <p class="more"><a href={href(lang, 'termine')}>{ui.allEvents} <span class="arrow">→</span></a></p>
     </section>
 
     <section class="card">
@@ -46,25 +121,43 @@ const withHours = shops.filter((s) => s.week);
       </ul>
       <p class="empty" data-none-open hidden>{ui.noneOpen}</p>
       <p class="muted" data-needs-js>{ui.needsJs}</p>
-      <p class="more"><a href={href(lang, 'einkaufen')}>{ui.allShops} →</a></p>
+      <p class="more"><a href={href(lang, 'einkaufen')}>{ui.allShops} <span class="arrow">→</span></a></p>
     </section>
 
     {
       transit && (
         <section class="card span-2">
           <h2>{ui.nextBuses}</h2>
+          {transit.realtime && (
+            <span class="sticker orange hide-sm at-top" aria-hidden="true">
+              Live!
+            </span>
+          )}
           <DepartureTable lang={lang} rows={nextDepartures} limit={4} variant="home" />
-          <p class="more"><a href={href(lang, 'verkehr')}>{ui.allDepartures} →</a></p>
+          <p class="more"><a href={href(lang, 'verkehr')}>{ui.allDepartures} <span class="arrow">→</span></a></p>
         </section>
       )
     }
 
     <section class="card">
       <h2>{ui.emergency}</h2>
-      <LinkList lang={lang} items={links.emergency} />
+      <div class="keys">
+        {
+          (links.emergency ?? []).map((item) => (
+            <a
+              class:list={['key', { alarm: alarm.has(item.value ?? '') }]}
+              href={item.url}
+              {...(/^https?:/.test(item.url) ? { rel: 'noopener', target: '_blank' } : {})}
+            >
+              <b>{item.value ?? '↗'}</b>
+              <span>{label(item, lang)}</span>
+            </a>
+          ))
+        }
+      </div>
     </section>
 
-    <section class="card">
+    <section class="card span-2">
       <h2>{ui.followOnline}</h2>
       <LinkList lang={lang} items={links.social} />
     </section>

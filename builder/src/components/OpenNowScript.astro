@@ -30,6 +30,8 @@ const ui = t(Astro.props.lang);
         el.hidden = el.dataset.state !== 'open';
       });
     });
+    const openCount = document.querySelectorAll('[data-open-only] [data-hours][data-state="open"]').length;
+    document.querySelectorAll<HTMLElement>('[data-open-count]').forEach((el) => (el.textContent = String(openCount)));
     document.querySelectorAll<HTMLElement>('[data-none-open]').forEach((el) => (el.hidden = anyOpen));
     document.querySelectorAll<HTMLElement>('[data-needs-js]').forEach((el) => (el.hidden = true));
   };

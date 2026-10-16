@@ -9,6 +9,10 @@ interface Props {
 const { lang, items } = Astro.props;
 const ui = t(lang);
 const sameDay = (a: string, b?: string | null) => !b || a.slice(0, 10) === b.slice(0, 10);
+const part = (iso: string, opts: Intl.DateTimeFormatOptions) =>
+  new Intl.DateTimeFormat(lang === 'de' ? 'de-DE' : 'en-GB', { timeZone: 'Europe/Berlin', ...opts })
+    .format(new Date(iso))
+    .replace('.', '');
 ---
 
 {
@@ -16,6 +20,10 @@ const sameDay = (a: string, b?: string | null) => !b || a.slice(0, 10) === b.sli
     <ul class="events">
       {items.map((e) => (
         <li>
+          <span class="cal" aria-hidden="true">
+            <b>{part(e.date, { day: '2-digit' })}</b>
+            <span>{part(e.date, { month: 'short' })}</span>
+          </span>
           <span class="event-date">
             <time datetime={e.date}>{formatDate(lang, e.date, true)}</time>
             {!sameDay(e.date, e.end) && e.end && (
