@@ -3,6 +3,7 @@
 // Only title, date and link are kept. A source that fails keeps its last good data.
 import { mkdir, readFile, writeFile, rename } from 'node:fs/promises';
 import path from 'node:path';
+import { pathToFileURL } from 'node:url';
 import Parser from 'rss-parser';
 import ical from 'node-ical';
 import YAML from 'yaml';
@@ -69,8 +70,35 @@ const decodeEntities = (value) =>
     .replace(/&nbsp;/g, ' ')
     .replace(/&amp;/g, '&');
 
+// Case-insensitive substring match of any keyword.
+const matchesKeywords = (text, keywords) => {
+  const haystack = text.toLowerCase();
+  return keywords.some((k) => haystack.includes(String(k).toLowerCase()));
+};
+
+/**
+ * Turns one parsed feed item into { title, url, date, source? }, or null when it is unusable
+ * or filtered out. The summary and categories are only used for the keyword filter, never stored.
+ */
+export function toHeadline(item, source) {
+  let title = cleanTitle(item.title);
+  let itemSource;
+  if (source.sourceFromItem) {
+    // Aggregators such as Google News name the publisher in <source> and append " - Publisher" to the title.
+    itemSource = cleanTitle(typeof item.source === 'object' ? item.source?._ ?? item.source?.$?.url : item.source);
+    if (itemSource && title.endsWith(` - ${itemSource}`)) title = title.slice(0, -itemSource.length - 3).trim();
+  }
+  if (!title || !isHttpUrl(item.link)) return null;
+  if (source.include?.length) {
+    const categories = (item.categories ?? []).map((c) => (typeof c === 'object' ? c._ ?? '' : c));
+    const text = [title, item.contentSnippet ?? '', ...categories].join(' ');
+    if (!matchesKeywords(text, source.include)) return null;
+  }
+  return { title, url: item.link, date: item.isoDate ?? null, ...(itemSource ? { source: itemSource } : {}) };
+}
+
 async function fetchFeeds(feeds, previous) {
-  const parser = new Parser();
+  const parser = new Parser({ customFields: { item: ['source'] } });
   const result = {};
   const status = {};
   for (const source of feeds) {
@@ -78,12 +106,8 @@ async function fetchFeeds(feeds, previous) {
       const xml = await fetchText(source.feed);
       const feed = await parser.parseString(xml);
       const items = (feed.items ?? [])
-        .map((item) => ({
-          title: cleanTitle(item.title),
-          url: item.link,
-          date: item.isoDate ?? null,
-        }))
-        .filter((item) => item.title && isHttpUrl(item.url))
+        .map((item) => toHeadline(item, source))
+        .filter(Boolean)
         .slice(0, source.max ?? 8);
       result[source.id] = items;
       status[source.id] = { ok: true, count: items.length };
@@ -173,7 +197,9 @@ async function main() {
   await writeJson('status.json', { fetchedAt: new Date().toISOString(), feeds: status });
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (import.meta.url === pathToFileURL(path.resolve(process.argv[1] ?? '')).href) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

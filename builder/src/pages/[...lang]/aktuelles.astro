@@ -2,12 +2,13 @@
 import Base from '../../layouts/Base.astro';
 import HeadlineList from '../../components/HeadlineList.astro';
 import { t, langPaths, toLang, NAV } from '../../lib/i18n';
-import { newsBySource, singlePages } from '../../lib/content';
+import { allHeadlines, highlighted, sources } from '../../lib/content';
 
 export const getStaticPaths = langPaths;
 const lang = toLang(Astro.params.lang);
 const ui = t(lang);
 const title = NAV.find((n) => n.slug === 'aktuelles')![lang];
+const region = allHeadlines.filter((h) => !highlighted.includes(h)).slice(0, 40);
 ---
 
 <Base lang={lang} slug="aktuelles" title={title}>
@@ -15,24 +16,30 @@ const title = NAV.find((n) => n.slug === 'aktuelles')![lang];
   <p class="lead">{ui.externalNote}</p>
   <div class="grid">
     {
-      newsBySource.map((src) => (
-        <section class="card">
-          <h2>
-            <a href={src.homepage} rel="noopener" target="_blank">
-              {src.name}
-            </a>
-          </h2>
-          <HeadlineList lang={lang} items={src.items} showSource={false} />
-        </section>
-      ))
-    }
-    {
-      singlePages.length > 0 && (
-        <section class="card">
-          <h2>{lang === 'de' ? 'Weitere Meldungen' : 'More reports'}</h2>
-          <HeadlineList lang={lang} items={singlePages} />
+      highlighted.length > 0 && (
+        <section class="card span-2">
+          <h2>{ui.fromGeyen}</h2>
+          <HeadlineList lang={lang} items={highlighted} />
         </section>
       )
     }
+    <section class="card span-2">
+      <h2>{ui.fromRegion}</h2>
+      <HeadlineList lang={lang} items={region} />
+    </section>
+    <section class="card">
+      <h2>{ui.newsSources}</h2>
+      <ul class="links">
+        {
+          (sources.feeds ?? []).map((src) => (
+            <li>
+              <a href={src.homepage} rel="noopener" target="_blank">
+                {src.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </section>
   </div>
 </Base>

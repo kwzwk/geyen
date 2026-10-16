@@ -66,3 +66,22 @@ test('fetch keeps only title, date and link, and survives failures', async (t) =
   const status = JSON.parse(await readFile(path.join(data, 'status.json'), 'utf8'));
   assert.equal(status.feeds.ok.ok, false);
 });
+
+test('toHeadline filters by keyword and takes the publisher from aggregator feeds', async () => {
+  const { toHeadline } = await import('../scripts/fetch.mjs');
+  const regional = { include: ['Pulheim', 'Geyen'] };
+  assert.equal(toHeadline({ title: 'Unfall in Bergheim', link: 'https://x.de/1', contentSnippet: 'Bergheim' }, regional), null);
+  assert.equal(
+    toHeadline({ title: 'Einbruch', link: 'https://x.de/2', contentSnippet: 'In Pulheim-Sinthern …' }, regional).title,
+    'Einbruch',
+  );
+  const google = { sourceFromItem: true };
+  assert.deepEqual(
+    toHeadline(
+      { title: 'Kirmes in Geyen - Kölner Stadt-Anzeiger', link: 'https://news.google.com/a', isoDate: '2026-10-15T08:00:00.000Z', source: { _: 'Kölner Stadt-Anzeiger', $: { url: 'https://www.ksta.de' } } },
+      google,
+    ),
+    { title: 'Kirmes in Geyen', url: 'https://news.google.com/a', date: '2026-10-15T08:00:00.000Z', source: 'Kölner Stadt-Anzeiger' },
+  );
+  assert.equal(toHeadline({ title: 'Ohne Link' }, {}), null);
+});

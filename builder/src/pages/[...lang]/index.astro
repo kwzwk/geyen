@@ -14,7 +14,7 @@ export const getStaticPaths = langPaths;
 const lang = toLang(Astro.params.lang);
 const ui = t(lang);
 // Headlines mentioning Geyen first, then the newest of the rest.
-const headlines = [...highlighted, ...allHeadlines.filter((h) => !highlighted.includes(h))].slice(0, 6);
+const headlines = [...highlighted, ...allHeadlines.filter((h) => !highlighted.includes(h))].slice(0, 8);
 const withHours = shops.filter((s) => s.week);
 ---
 

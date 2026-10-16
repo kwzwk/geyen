@@ -4,6 +4,8 @@ domain: geyen.org
 title: Geyen
 # Schlagzeilen, die eines dieser Wörter enthalten, erscheinen auf der Startseite.
 # Headlines containing one of these words are pinned to the home page.
+# Schlagzeilen, die älter als newsMaxAgeDays Tage sind, werden ausgeblendet. / Older headlines are hidden.
+newsMaxAgeDays: 45
 highlightKeywords:
   - Geyen
 impressum:
