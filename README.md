@@ -20,8 +20,9 @@ cookie banner is needed.
 
 ## Run it
 
-The server needs `compose.yaml` and the `content/` folder; cloning the repository is the
-easiest way to get both.
+The server only needs `compose.yaml`; the builder image carries a copy of `content/`.
+Cloning the repository is still the easiest way to edit the content on the server: a
+`content/` folder next to `compose.yaml` replaces the bundled copy (an empty one is ignored).
 
 ```sh
 git clone https://github.com/kwzwk/geyen.git && cd geyen

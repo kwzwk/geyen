@@ -16,6 +16,8 @@ services:
       SITE_URL: ${SITE_URL:-https://geyen.org}
       REBUILD_INTERVAL_SECONDS: ${REBUILD_INTERVAL_SECONDS:-1800}
     volumes:
+      # Optional: your own copy of content/ to edit without rebuilding the image.
+      # Without it (or if the folder is empty) the content bundled in the image is used.
       - ./content:/content:ro
       - data:/data
       - site:/site

@@ -13,6 +13,8 @@ WORKDIR /app
 RUN mkdir -p /data /site && chown node:node /data /site /app
 COPY --from=deps --chown=node:node /app/node_modules ./node_modules
 COPY --chown=node:node . .
+# The repository's content/ folder, used when nothing is mounted at /content.
+COPY --from=content --chown=node:node . /app/content-default
 USER node
 HEALTHCHECK --interval=15s --timeout=5s --start-period=180s --retries=3 \
   CMD test -e /site/current/index.html || exit 1
