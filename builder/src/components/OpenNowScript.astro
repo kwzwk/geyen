@@ -1,0 +1,38 @@
+---
+import { t, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+}
+const ui = t(Astro.props.lang);
+---
+
+<div data-open-labels data-open={ui.openNow} data-closed={ui.closedNow} hidden></div>
+<script>
+  import { isOpen, type Week } from '../lib/hours';
+
+  const labels = document.querySelector<HTMLElement>('[data-open-labels]');
+  const update = () => {
+    let anyOpen = false;
+    document.querySelectorAll<HTMLElement>('[data-hours]').forEach((el) => {
+      const open = isOpen(JSON.parse(el.dataset.hours ?? '[]') as Week);
+      anyOpen ||= open;
+      el.dataset.state = open ? 'open' : 'closed';
+      const badge = el.querySelector<HTMLElement>('[data-open-badge]');
+      if (badge && labels) {
+        badge.textContent = open ? labels.dataset.open! : labels.dataset.closed!;
+        badge.hidden = false;
+      }
+    });
+    document.querySelectorAll<HTMLElement>('[data-open-only]').forEach((list) => {
+      list.hidden = false;
+      list.querySelectorAll<HTMLElement>('[data-hours]').forEach((el) => {
+        el.hidden = el.dataset.state !== 'open';
+      });
+    });
+    document.querySelectorAll<HTMLElement>('[data-none-open]').forEach((el) => (el.hidden = anyOpen));
+    document.querySelectorAll<HTMLElement>('[data-needs-js]').forEach((el) => (el.hidden = true));
+  };
+  update();
+  setInterval(update, 60_000);
+</script>

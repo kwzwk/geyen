@@ -1,0 +1,46 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t, langPaths, toLang } from '../../lib/i18n';
+import { site } from '../../lib/content';
+
+export const getStaticPaths = langPaths;
+const lang = toLang(Astro.params.lang);
+const ui = t(lang);
+const i = site.impressum ?? ({} as typeof site.impressum);
+---
+
+<Base lang={lang} slug="datenschutz" title={ui.privacy}>
+  <h1>Datenschutzerklärung</h1>
+  {lang === 'en' && <p class="lead">The privacy policy is provided in German.</p>}
+  <section class="card prose" lang="de">
+    <h2>Verantwortlicher</h2>
+    <p>{i.name}, {i.street}, {i.city}, <a href={`mailto:${i.email}`}>{i.email}</a></p>
+
+    <h2>Keine Cookies, kein Tracking</h2>
+    <p>
+      Diese Seite setzt keine Cookies, verwendet keine Analyse- oder Tracking-Dienste und lädt keine Inhalte,
+      Schriften oder Skripte von Dritten. Eingebettete Beiträge sozialer Netzwerke gibt es nicht; Verweise auf
+      andere Seiten sind einfache Links, die erst beim Anklicken eine Verbindung zum jeweiligen Anbieter herstellen.
+    </p>
+
+    <h2>Server-Protokolle</h2>
+    <p>
+      Beim Aufruf der Seite verarbeitet der Webserver technisch notwendige Daten (IP-Adresse, Zeitpunkt, aufgerufene
+      Adresse, Browserkennung), um die Seite auszuliefern und vor Missbrauch zu schützen (Art. 6 Abs. 1 lit. f
+      DSGVO). Diese Protokolle werden nach {site.logRetentionDays} Tagen gelöscht.
+    </p>
+
+    <h2>Kontakt per E-Mail</h2>
+    <p>
+      Wenn Sie uns per E-Mail schreiben, verwenden wir Ihre Angaben nur zur Bearbeitung Ihrer Nachricht
+      (Art. 6 Abs. 1 lit. f DSGVO) und löschen sie, sobald sie dafür nicht mehr benötigt werden.
+    </p>
+
+    <h2>Ihre Rechte</h2>
+    <p>
+      Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung und Widerspruch
+      sowie das Recht auf Beschwerde bei einer Datenschutz-Aufsichtsbehörde, in Nordrhein-Westfalen bei der
+      Landesbeauftragten für Datenschutz und Informationsfreiheit NRW.
+    </p>
+  </section>
+</Base>

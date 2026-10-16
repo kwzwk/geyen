@@ -1,0 +1,31 @@
+{
+  "name": "geyen-builder",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Fetches source feeds and builds the static geyen.org site",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "fetch": "node scripts/fetch.mjs",
+    "transit": "node scripts/transit.mjs && node scripts/transit.mjs departures",
+    "build": "astro build",
+    "dev": "astro dev",
+    "check": "astro check",
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "astro": "^7.4.0",
+    "node-ical": "^0.27.3",
+    "rss-parser": "^3.13.0",
+    "yaml": "^2.9.1",
+    "yauzl": "^3.4.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^24.19.2",
+    "typescript": "^5.9.3",
+    "yazl": "^3.3.1"
+  }
+}

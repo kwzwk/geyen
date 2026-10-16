@@ -1,0 +1,41 @@
+---
+import { t, formatDate, type Lang } from '../lib/i18n';
+import type { Event } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+  items: Event[];
+}
+const { lang, items } = Astro.props;
+const ui = t(lang);
+const sameDay = (a: string, b?: string | null) => !b || a.slice(0, 10) === b.slice(0, 10);
+---
+
+{
+  items.length ? (
+    <ul class="events">
+      {items.map((e) => (
+        <li>
+          <span class="event-date">
+            <time datetime={e.date}>{formatDate(lang, e.date, true)}</time>
+            {!sameDay(e.date, e.end) && e.end && (
+              <>
+                {' – '}
+                <time datetime={e.end}>{formatDate(lang, e.end, true)}</time>
+              </>
+            )}
+            {e.time && <span class="event-time">{e.time}</span>}
+          </span>
+          <a href={e.url} rel="noopener" target="_blank">
+            {e.title}
+          </a>
+          <span class="meta">
+            {ui.organiser}: {e.organiser}
+          </span>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p class="empty">{ui.noEvents}</p>
+  )
+}

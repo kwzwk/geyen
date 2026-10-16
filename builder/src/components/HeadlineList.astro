@@ -1,0 +1,32 @@
+---
+import { t, formatDate, type Lang } from '../lib/i18n';
+import type { Headline } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+  items: Headline[];
+  showSource?: boolean;
+}
+const { lang, items, showSource = true } = Astro.props;
+const ui = t(lang);
+---
+
+{
+  items.length ? (
+    <ul class="headlines">
+      {items.map((item) => (
+        <li>
+          <a href={item.url} rel="noopener" target="_blank">
+            {item.title}
+          </a>
+          <span class="meta">
+            {showSource && <span>{item.source}</span>}
+            {item.date && <time datetime={item.date}>{formatDate(lang, item.date)}</time>}
+          </span>
+        </li>
+      ))}
+    </ul>
+  ) : (
+    <p class="empty">{ui.noHeadlines}</p>
+  )
+}

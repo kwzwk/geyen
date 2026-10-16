@@ -1,0 +1,44 @@
+# geyen.org – two containers, published to GitHub Container Registry on every push to main:
+#   builder: fetches the source feeds and rebuilds the static site every 30 minutes
+#   web:     nginx serving the built site on port 8080 for your reverse proxy
+#
+# Start with the published images:   docker compose up -d
+# Update to the newest images:       docker compose pull && docker compose up -d
+# Build the images yourself instead: docker compose -f compose.yaml -f compose.build.yaml up -d --build
+name: geyen
+
+services:
+  builder:
+    image: ghcr.io/kwzwk/geyen-builder:${GEYEN_VERSION:-latest}
+    init: true
+    restart: unless-stopped
+    environment:
+      SITE_URL: ${SITE_URL:-https://geyen.org}
+      REBUILD_INTERVAL_SECONDS: ${REBUILD_INTERVAL_SECONDS:-1800}
+    volumes:
+      - ./content:/content:ro
+      - data:/data
+      - site:/site
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+  web:
+    image: ghcr.io/kwzwk/geyen-web:${GEYEN_VERSION:-latest}
+    restart: unless-stopped
+    depends_on:
+      builder:
+        condition: service_healthy
+    ports:
+      # Defaults to localhost only. Set WEB_BIND=0.0.0.0 if your reverse proxy runs on another machine.
+      - "${WEB_BIND:-127.0.0.1}:${WEB_PORT:-8080}:8080"
+    volumes:
+      - site:/site:ro
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+
+volumes:
+  data:
+  site:

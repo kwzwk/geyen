@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import LinkList from '../../components/LinkList.astro';
+import { t, langPaths, toLang, NAV } from '../../lib/i18n';
+import { links } from '../../lib/content';
+
+export const getStaticPaths = langPaths;
+const lang = toLang(Astro.params.lang);
+const ui = t(lang);
+const title = NAV.find((n) => n.slug === 'dorf')![lang];
+---
+
+<Base lang={lang} slug="dorf" title={title}>
+  <h1>{title}</h1>
+  <div class="grid">
+    <section class="card">
+      <h2>{ui.links}</h2>
+      <LinkList lang={lang} items={links.village} />
+    </section>
+    <section class="card">
+      <h2>{ui.clubs}</h2>
+      <LinkList lang={lang} items={links.clubs} />
+    </section>
+    <section class="card">
+      <h2>{ui.followOnline}</h2>
+      <LinkList lang={lang} items={links.social} />
+    </section>
+  </div>
+</Base>

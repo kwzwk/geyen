@@ -1,0 +1,43 @@
+# Bus und Bahn: Fahrplandaten aus dem offenen deutschlandweiten GTFS-Datensatz
+# (DELFI e.V., bereitgestellt von gtfs.de, Lizenz CC BY 4.0). Keine Echtzeitdaten.
+# Bus and train: timetable data from the open German GTFS feed. Scheduled times only.
+
+gtfsUrl: https://download.gtfs.de/germany/nv_free/latest.zip
+attribution: "Fahrplandaten: DELFI e.V. über gtfs.de, CC BY 4.0"
+attributionUrl: https://gtfs.de/
+# Wie oft der Datensatz (ca. 270 MB) neu geladen wird.
+refreshDays: 7
+# Wie viele Tage im Voraus Abfahrten berechnet werden.
+daysAhead: 3
+# Mindest-Umstiegszeit am Bahnhof in Minuten.
+transferMinutes: 4
+# Längste Wartezeit auf den Anschluss in Minuten.
+maxWaitMinutes: 60
+
+# Mittelpunkt von Geyen; Haltestellen werden in diesem Umkreis gesucht.
+center: { lat: 50.9817, lon: 6.7864 }
+
+# Haltestellen in Geyen: alle Haltestellen im Umkreis, deren Name eines dieser Wörter enthält.
+stops:
+  match: [geyen]
+  radiusKm: 2
+  # Link zur Live-Abfahrtstafel des VRS je Haltestelle (Name wie im Fahrplan).
+  liveLinks:
+    Geyen Mitte: https://www.vrs.de/his/haltestelle/de:05362:81741
+  defaultLiveLink: https://www.vrs.de/
+
+# Umstiegspunkte nach Köln. Ein Name passt, wenn er alle Wörter einer Gruppe enthält.
+hubs:
+  - name: Pulheim Bahnhof
+    match: [[pulheim, bahnhof], [pulheim, bf]]
+  - name: Köln-Weiden West
+    match: [[weiden, west]]
+# Umstiegspunkte und Ziele werden in diesem Umkreis um Geyen gesucht.
+radiusKm: 30
+
+# Ziele in Köln (das erste erreichbare zählt).
+destinations:
+  - name: Köln Hbf
+    match: [[köln, hbf], [köln, hauptbahnhof]]
+  - name: Köln Neumarkt
+    match: [[köln, neumarkt]]

@@ -1,0 +1,99 @@
+# Linklisten. Jeder Eintrag: label (Deutsch), optional label_en (Englisch), url, optional value (z. B. Telefonnummer).
+# Link lists. Each entry: label (German), optional label_en, url, optional value (e.g. a phone number).
+
+social:
+  - label: Pulheim Report auf Instagram
+    label_en: Pulheim Report on Instagram
+    url: https://www.instagram.com/pulheimreport/
+  - label: SC Germania Geyen auf Instagram
+    label_en: SC Germania Geyen on Instagram
+    url: https://www.instagram.com/germaniageyen1932/
+  - label: SC Germania Geyen auf Facebook
+    label_en: SC Germania Geyen on Facebook
+    url: https://www.facebook.com/SCGermania1932Geyen
+  - label: Dorfgemeinschaft Geyen auf Facebook
+    label_en: Dorfgemeinschaft Geyen on Facebook
+    url: https://www.facebook.com/AdminDGGeyen
+
+germania:
+  - label: Vereinswebseite germania-geyen.de
+    label_en: Club website germania-geyen.de
+    url: https://germania-geyen.de/
+  - label: Alle Mannschaften auf fussball.de
+    label_en: All teams on fussball.de
+    url: https://www.fussball.de/verein/sc-germania-1932-geyen-ev-mittelrhein/-/id/00ES8GN92C00008KVV0AG08LVUPGND5I
+  - label: 1. Herren – Spielplan und Tabelle (Kreisliga A)
+    label_en: 1st team – fixtures and table (Kreisliga A)
+    url: https://www.fussball.de/mannschaft/sc-germania-1932-geyen-ev-sc-germania-1932-geyen-ev-mittelrhein/-/saison/2627/team-id/011MIE0T54000000VTVG0001VTR8C1K7
+  - label: Kontakt und Probetraining
+    label_en: Contact and trial training
+    url: https://germania-geyen.de/verein/kontakt/
+
+village:
+  - label: Geyen bei Wikipedia (Deutsch)
+    label_en: Geyen on Wikipedia (German)
+    url: https://de.wikipedia.org/wiki/Geyen
+  - label: Geyen bei Wikipedia (Englisch)
+    label_en: Geyen on Wikipedia (English)
+    url: https://en.wikipedia.org/wiki/Geyen
+  - label: Geyen auf OpenStreetMap
+    label_en: Geyen on OpenStreetMap
+    url: https://www.openstreetmap.org/#map=16/50.9817/6.7864
+  - label: Stadt Pulheim
+    label_en: City of Pulheim
+    url: https://www.pulheim.de/
+
+clubs:
+  - label: Dorfgemeinschaft Geyen e.V. (Karneval, Dorffest)
+    label_en: Dorfgemeinschaft Geyen e.V. (carnival, village festival)
+    url: https://www.dg-geyen.de/
+  - label: SC Germania 1932 Geyen e.V. (Fußball)
+    label_en: SC Germania 1932 Geyen e.V. (football)
+    url: https://germania-geyen.de/
+  - label: St. Cornelius Schützenbruderschaft Geyen 1927 e.V.
+    url: https://www.bildungslandschaft-pulheim.de/verzeichnisse/bildungslandschaft/st.cornelius-schuetzenbruederschaft-geyen-1927-e.v.php
+  - label: Geyen Alive (Facebook)
+    url: https://www.facebook.com/GeyenAlive/
+
+emergency:
+  - label: Feuerwehr und Rettungsdienst
+    label_en: Fire brigade and ambulance
+    value: "112"
+    url: tel:112
+  - label: Polizei
+    label_en: Police
+    value: "110"
+    url: tel:110
+  - label: Ärztlicher Bereitschaftsdienst
+    label_en: Out-of-hours doctor
+    value: "116 117"
+    url: tel:116117
+  - label: Apotheken-Notdienst finden
+    label_en: Find an emergency pharmacy
+    url: https://www.aponet.de/apotheke/notdienstsuche
+
+contacts:
+  - label: Rathaus Pulheim, Alte Kölner Str. 26
+    label_en: Pulheim city hall, Alte Kölner Str. 26
+    value: "02238 808-0"
+    url: tel:+4922388080
+  - label: Stadt Pulheim im Internet
+    label_en: City of Pulheim website
+    url: https://www.pulheim.de/
+  - label: Abfallkalender Pulheim 2026 (PDF)
+    label_en: Pulheim waste collection calendar 2026 (PDF)
+    url: https://www.pulheim.de/abfall/Abfallkalender-Pulheim-2026.pdf
+  - label: Bus und Bahn
+    label_en: Buses and trains
+    url: /verkehr/
+
+transit:
+  - label: Fahrplanauskunft und Live-Abfahrten beim VRS
+    label_en: VRS journey planner and live departures
+    url: https://www.vrs.de/
+  - label: Live-Abfahrten Geyen Mitte (VRS)
+    label_en: Live departures Geyen Mitte (VRS)
+    url: https://www.vrs.de/his/haltestelle/de:05362:81741
+  - label: Liniennetz REVG 2026 (PDF)
+    label_en: REVG bus network map 2026 (PDF)
+    url: https://revg.de/files/daten/liniennetz/REVG-Liniennetz_2026.pdf

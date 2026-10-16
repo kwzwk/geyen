@@ -1,0 +1,38 @@
+---
+import Base from '../../layouts/Base.astro';
+import HeadlineList from '../../components/HeadlineList.astro';
+import { t, langPaths, toLang, NAV } from '../../lib/i18n';
+import { newsBySource, singlePages } from '../../lib/content';
+
+export const getStaticPaths = langPaths;
+const lang = toLang(Astro.params.lang);
+const ui = t(lang);
+const title = NAV.find((n) => n.slug === 'aktuelles')![lang];
+---
+
+<Base lang={lang} slug="aktuelles" title={title}>
+  <h1>{title}</h1>
+  <p class="lead">{ui.externalNote}</p>
+  <div class="grid">
+    {
+      newsBySource.map((src) => (
+        <section class="card">
+          <h2>
+            <a href={src.homepage} rel="noopener" target="_blank">
+              {src.name}
+            </a>
+          </h2>
+          <HeadlineList lang={lang} items={src.items} showSource={false} />
+        </section>
+      ))
+    }
+    {
+      singlePages.length > 0 && (
+        <section class="card">
+          <h2>{lang === 'de' ? 'Weitere Meldungen' : 'More reports'}</h2>
+          <HeadlineList lang={lang} items={singlePages} />
+        </section>
+      )
+    }
+  </div>
+</Base>
