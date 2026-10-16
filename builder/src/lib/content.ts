@@ -20,6 +20,7 @@ export interface Site {
   domain: string;
   title: string;
   highlightKeywords: string[];
+  newsMaxAgeDays?: number;
   impressum: { name: string; street: string; city: string; email: string; phone?: string };
   logRetentionDays: number;
 }
@@ -45,22 +46,35 @@ export const shops: Shop[] = yaml<Omit<Shop, 'week'>[]>('shops.yaml', []).map((s
   week: parseHours(s.hours),
 }));
 
-const news = json<{ feeds: Record<string, Omit<Headline, 'source'>[]>; pages: Headline[] }>('news.json', {
-  feeds: {},
-  pages: [],
-});
+const news = json<{ feeds: Record<string, (Omit<Headline, 'source'> & { source?: string })[]>; pages: Headline[] }>(
+  'news.json',
+  { feeds: {}, pages: [] },
+);
 
 const byDateDesc = (a: Headline, b: Headline) => (b.date ?? '').localeCompare(a.date ?? '');
+const maxAgeMs = (site.newsMaxAgeDays ?? 45) * 86_400_000;
+const buildTime = Date.now();
+/** Dated within newsMaxAgeDays. Undated headlines count as fresh only where noted. */
+const isRecent = (h: Headline) => h.date !== null && buildTime - Date.parse(h.date) <= maxAgeMs;
 
-/** Headlines grouped per feed source, in the order of sources.yaml. */
+/** Headlines per feed source, in the order of sources.yaml, without old ones. */
 export const newsBySource = (sources.feeds ?? []).map((src) => ({
   ...src,
-  items: (news.feeds[src.id] ?? []).map((i) => ({ ...i, source: src.name, sourceUrl: src.homepage })),
+  items: (news.feeds[src.id] ?? [])
+    .map((i) => ({ ...i, source: i.source ?? src.name, sourceUrl: i.source ? undefined : src.homepage }))
+    .filter((h) => h.date === null || isRecent(h)),
 }));
 
 export const singlePages: Headline[] = (news.pages ?? []).map((p) => ({ ...p, title: p.title || p.url }));
 
-export const allHeadlines: Headline[] = [...newsBySource.flatMap((s) => s.items), ...singlePages].sort(byDateDesc);
+// The same story often comes from several feeds (e.g. a local site and a news aggregator); keep the first.
+const titleKey = (h: Headline) => h.title.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
+const seen = new Set<string>();
+/** Recent headlines from all sources, newest first, one per story. */
+export const allHeadlines: Headline[] = [...newsBySource.flatMap((s) => s.items), ...singlePages]
+  .filter(isRecent)
+  .sort(byDateDesc)
+  .filter((h) => !seen.has(titleKey(h)) && seen.add(titleKey(h)));
 
 const keywords = (site.highlightKeywords ?? ['Geyen']).map((k) => k.toLowerCase());
 export const highlighted = allHeadlines.filter((h) => keywords.some((k) => h.title.toLowerCase().includes(k)));

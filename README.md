@@ -63,7 +63,7 @@ Everything you edit lives in `content/`:
 | File | Contents |
 | --- | --- |
 | `site.yaml` | Impressum details (**fill in before going live**), log retention, highlight keywords |
-| `sources.yaml` | News feeds, single article links (title is read automatically), club calendar feeds |
+| `sources.yaml` | News feeds (optionally filtered by place names), single article links (title is read automatically), club calendar feeds |
 | `shops.yaml` | Shops with address, phone, owner's link and opening hours (OpenStreetMap syntax) |
 | `events.yaml` | Events: date, title, organiser, link to the organiser's announcement |
 | `links.yaml` | Link lists: emergency numbers, city services, clubs, social profiles, football club, journey planners |

@@ -3,26 +3,51 @@
 # News sources. Only headline, date and link are taken; every item links to the original.
 
 feeds:
+  # Optional je Quelle / optional per source:
+  #   include:        nur Beiträge, deren Titel, Kurztext oder Kategorie eines dieser Wörter enthält
+  #                   only items whose title, summary or category contains one of these words
+  #   sourceFromItem: Herausgeber aus dem Beitrag übernehmen (für Google News)
+  #                   take the publisher from each item (for Google News)
+  - id: antennepulheim
+    name: Antenne Pulheim
+    homepage: https://www.antennepulheim.de/
+    feed: https://www.antennepulheim.de/feed/
+    max: 15
+  - id: antennepulheim-geyen
+    name: Antenne Pulheim (Geyen)
+    homepage: https://www.antennepulheim.de/category/geyen/
+    feed: https://www.antennepulheim.de/category/geyen/feed/
+    max: 6
   - id: pulheimreport
     name: Pulheim Report
     homepage: https://pulheimreport.de/
     feed: https://pulheimreport.de/feed/
     max: 8
+    include: &orte [Pulheim, Geyen, Sinthern, Stommeln, Brauweiler, Dansweiler, Sinnersdorf, Stommelerbusch, Freimersdorf, Manstedten]
+  - id: polizei
+    name: Polizei Rhein-Erft-Kreis
+    homepage: https://www.presseportal.de/blaulicht/nr/10374
+    feed: https://www.presseportal.de/rss/dienststelle_10374.rss2
+    max: 6
+    include: *orte
+  - id: googlenews-geyen
+    name: Google News (Geyen)
+    homepage: https://news.google.com/search?q=Pulheim%20Geyen&hl=de&gl=DE&ceid=DE:de
+    feed: https://news.google.com/rss/search?q=Pulheim+Geyen&hl=de&gl=DE&ceid=DE:de
+    max: 8
+    sourceFromItem: true
+  - id: googlenews-pulheim
+    name: Google News (Pulheim)
+    homepage: https://news.google.com/search?q=Pulheim&hl=de&gl=DE&ceid=DE:de
+    feed: https://news.google.com/rss/search?q=Pulheim&hl=de&gl=DE&ceid=DE:de
+    max: 15
+    sourceFromItem: true
   - id: germania
     name: SC Germania 1932 Geyen
     homepage: https://germania-geyen.de/
     feed: https://germania-geyen.de/feed/
     max: 6
-  - id: antennepulheim
-    name: Antenne Pulheim (Geyen)
-    homepage: https://www.antennepulheim.de/category/geyen/
-    feed: https://www.antennepulheim.de/category/geyen/feed/
-    max: 6
-  # Stadt Pulheim: Feed-Adresse noch unbekannt. Sobald gefunden, hier eintragen.
-  # - id: stadt
-  #   name: Stadt Pulheim
-  #   homepage: https://www.pulheim.de/
-  #   feed: https://www.pulheim.de/...
+  # Stadt Pulheim: kein Feed gefunden. / Stadt Pulheim: no feed found.
 
 # Einzelne Artikel ohne Feed: nur die Adresse eintragen, die Überschrift
 # wird automatisch von der Seite gelesen. Datum ist optional.
