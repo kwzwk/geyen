@@ -33,7 +33,7 @@ export interface Shop {
 }
 
 interface FeedSource { id: string; name: string; homepage: string; feed: string; max?: number }
-interface Sources { feeds?: FeedSource[]; pages?: unknown[]; calendars?: { id: string }[] }
+interface Sources { clubKeywords?: string[]; feeds?: FeedSource[]; pages?: unknown[]; calendars?: { id: string }[] }
 
 export const site = yaml<Site>('site.yaml', {} as Site);
 export const links = yaml<Record<string, LinkItem[]>>('links.yaml', {});
@@ -75,6 +75,14 @@ export const allHeadlines: Headline[] = [...newsBySource.flatMap((s) => s.items)
   .filter(isRecent)
   .sort(byDateDesc)
   .filter((h) => !seen.has(titleKey(h)) && seen.add(titleKey(h)));
+
+// Club news: the club's own feed plus headlines from any source that name the club.
+const clubWords = (sources.clubKeywords ?? ['Germania Geyen']).map((k) => k.toLowerCase());
+const clubFeed: Headline[] = newsBySource.find((s) => s.id === 'germania')?.items ?? [];
+export const clubNews: Headline[] = [
+  ...clubFeed,
+  ...allHeadlines.filter((h) => !clubFeed.includes(h) && clubWords.some((k) => h.title.toLowerCase().includes(k))),
+].sort(byDateDesc);
 
 const keywords = (site.highlightKeywords ?? ['Geyen']).map((k) => k.toLowerCase());
 export const highlighted = allHeadlines.filter((h) => keywords.some((k) => h.title.toLowerCase().includes(k)));

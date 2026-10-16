@@ -3,12 +3,11 @@ import Base from '../../layouts/Base.astro';
 import HeadlineList from '../../components/HeadlineList.astro';
 import LinkList from '../../components/LinkList.astro';
 import { t, langPaths, toLang } from '../../lib/i18n';
-import { newsBySource, links } from '../../lib/content';
+import { clubNews, links } from '../../lib/content';
 
 export const getStaticPaths = langPaths;
 const lang = toLang(Astro.params.lang);
 const ui = t(lang);
-const club = newsBySource.find((s) => s.id === 'germania');
 ---
 
 <Base lang={lang} slug="germania" title="SC Germania 1932 Geyen">
@@ -21,7 +20,14 @@ const club = newsBySource.find((s) => s.id === 'germania');
     </section>
     <section class="card">
       <h2>{ui.germaniaNews}</h2>
-      <HeadlineList lang={lang} items={club?.items ?? []} showSource={false} />
+      {
+        clubNews.length > 0 ? (
+          <HeadlineList lang={lang} items={clubNews} />
+        ) : (
+          <p class="empty">{ui.germaniaNoNews}</p>
+        )
+      }
+      <LinkList lang={lang} items={links.germaniaSocial} />
     </section>
   </div>
 </Base>

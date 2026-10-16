@@ -15,6 +15,15 @@ social:
     label_en: Dorfgemeinschaft Geyen on Facebook
     url: https://www.facebook.com/AdminDGGeyen
 
+# Wo der Verein selbst Neuigkeiten veröffentlicht. / Where the club posts its own news.
+germaniaSocial:
+  - label: SC Germania Geyen auf Instagram
+    label_en: SC Germania Geyen on Instagram
+    url: https://www.instagram.com/germaniageyen1932/
+  - label: SC Germania Geyen auf Facebook
+    label_en: SC Germania Geyen on Facebook
+    url: https://www.facebook.com/SCGermania1932Geyen
+
 germania:
   - label: Vereinswebseite germania-geyen.de
     label_en: Club website germania-geyen.de
