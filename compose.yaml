@@ -1,11 +1,15 @@
-# geyen.org – two self-built containers:
+# geyen.org – two containers, published to GitHub Container Registry on every push to main:
 #   builder: fetches the source feeds and rebuilds the static site every 30 minutes
 #   web:     nginx serving the built site on port 8080 for your reverse proxy
+#
+# Start with the published images:   docker compose up -d
+# Update to the newest images:       docker compose pull && docker compose up -d
+# Build the images yourself instead: docker compose -f compose.yaml -f compose.build.yaml up -d --build
 name: geyen
 
 services:
   builder:
-    build: ./builder
+    image: ghcr.io/kwzwk/geyen-builder:${GEYEN_VERSION:-latest}
     init: true
     restart: unless-stopped
     environment:
@@ -19,7 +23,7 @@ services:
     security_opt: [no-new-privileges:true]
 
   web:
-    build: ./web
+    image: ghcr.io/kwzwk/geyen-web:${GEYEN_VERSION:-latest}
     restart: unless-stopped
     depends_on:
       builder:

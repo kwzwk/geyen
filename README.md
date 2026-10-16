@@ -8,26 +8,52 @@ under `/en/`.
 
 ## How it works
 
-Two self-built containers:
+Two containers, published to GitHub Container Registry for amd64 and arm64:
 
-| Container | What it does |
+| Image | What it does |
 | --- | --- |
-| `builder` | Every 30 minutes: reads the RSS and calendar feeds listed in `content/sources.yaml`, then builds the static site with [Astro](https://astro.build) and publishes it to a shared volume. A source that fails keeps its last good headlines. |
-| `web` | Unprivileged nginx serving the built site on port 8080, with a strict Content-Security-Policy. Your reverse proxy terminates TLS and forwards to it. |
+| `ghcr.io/kwzwk/geyen-builder` | Every 30 minutes: reads the RSS and calendar feeds listed in `content/sources.yaml`, then builds the static site with [Astro](https://astro.build) and publishes it to a shared volume. A source that fails keeps its last good headlines. |
+| `ghcr.io/kwzwk/geyen-web` | Unprivileged nginx serving the built site on port 8080, with a strict Content-Security-Policy. Your reverse proxy terminates TLS and forwards to it. |
 
 The site loads no third-party scripts, fonts, embeds or trackers and sets no cookies, so no
 cookie banner is needed.
 
 ## Run it
 
+The server needs `compose.yaml` and the `content/` folder; cloning the repository is the
+easiest way to get both.
+
 ```sh
-cp .env.example .env    # optional: change port or bind address
-docker compose up -d --build
+git clone https://github.com/kwzwk/geyen.git && cd geyen
+cp .env.example .env    # optional: change port, bind address or image version
+docker compose up -d
 ```
 
 The web container waits until the first build is published, then answers on
 `127.0.0.1:8080`. Point your reverse proxy there. If the proxy runs on another machine,
 set `WEB_BIND=0.0.0.0` in `.env`. A health endpoint is available at `/healthz`.
+
+Update to the newest images:
+
+```sh
+git pull && docker compose pull && docker compose up -d
+```
+
+To build the images from your checkout instead of pulling them:
+
+```sh
+docker compose -f compose.yaml -f compose.build.yaml up -d --build
+```
+
+### Image tags
+
+| Tag | When it is published |
+| --- | --- |
+| `latest` | Every push to `main` |
+| `1.2.3`, `1.2` | When a tag such as `v1.2.3` is pushed |
+| `sha-abc1234` | Every published build, for pinning or rollback |
+
+Set `GEYEN_VERSION` in `.env` to pin a version.
 
 ## Editing content
 

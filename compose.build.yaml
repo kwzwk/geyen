@@ -1,0 +1,7 @@
+# Override to build the images from this checkout instead of pulling them:
+#   docker compose -f compose.yaml -f compose.build.yaml up -d --build
+services:
+  builder:
+    build: ./builder
+  web:
+    build: ./web
