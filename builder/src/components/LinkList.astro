@@ -8,13 +8,15 @@ interface Props {
 }
 const { lang, items = [] } = Astro.props;
 const external = (url: string) => /^https?:/.test(url);
+// Site-internal links in links.yaml are written for the German site; prefix them for English.
+const localise = (url: string) => (lang === 'en' && url.startsWith('/') ? `/en${url}` : url);
 ---
 
 <ul class="links">
   {
     items.map((item) => (
       <li>
-        <a href={item.url} {...(external(item.url) ? { rel: 'noopener', target: '_blank' } : {})}>
+        <a href={localise(item.url)} {...(external(item.url) ? { rel: 'noopener', target: '_blank' } : {})}>
           {label(item, lang)}
         </a>
         {item.value && <span class="value">{item.value}</span>}

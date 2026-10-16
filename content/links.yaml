@@ -83,9 +83,17 @@ contacts:
   - label: Abfallkalender Pulheim 2026 (PDF)
     label_en: Pulheim waste collection calendar 2026 (PDF)
     url: https://www.pulheim.de/abfall/Abfallkalender-Pulheim-2026.pdf
-  - label: Busverbindungen (REVG-Liniennetz 2026, PDF)
-    label_en: Bus network map (REVG 2026, PDF)
-    url: https://revg.de/files/daten/liniennetz/REVG-Liniennetz_2026.pdf
-  - label: Fahrplanauskunft VRS
-    label_en: VRS journey planner
+  - label: Bus und Bahn
+    label_en: Buses and trains
+    url: /verkehr/
+
+transit:
+  - label: Fahrplanauskunft und Live-Abfahrten beim VRS
+    label_en: VRS journey planner and live departures
     url: https://www.vrs.de/
+  - label: Live-Abfahrten Geyen Mitte (VRS)
+    label_en: Live departures Geyen Mitte (VRS)
+    url: https://www.vrs.de/his/haltestelle/de:05362:81741
+  - label: Liniennetz REVG 2026 (PDF)
+    label_en: REVG bus network map 2026 (PDF)
+    url: https://revg.de/files/daten/liniennetz/REVG-Liniennetz_2026.pdf

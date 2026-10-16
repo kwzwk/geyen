@@ -65,7 +65,8 @@ Everything you edit lives in `content/`:
 | `sources.yaml` | News feeds, single article links (title is read automatically), club calendar feeds |
 | `shops.yaml` | Shops with address, phone, owner's link and opening hours (OpenStreetMap syntax) |
 | `events.yaml` | Events: date, title, organiser, link to the organiser's announcement |
-| `links.yaml` | Link lists: emergency numbers, city services, clubs, social profiles, football club |
+| `links.yaml` | Link lists: emergency numbers, city services, clubs, social profiles, football club, journey planners |
+| `transit.yaml` | Timetable source, which stops count as Geyen, the transfer hubs (Pulheim Bahnhof, Köln-Weiden West) and the Köln destinations |
 
 Changes are picked up at the next rebuild. To publish right away:
 
@@ -76,6 +77,22 @@ docker compose restart builder
 Opening hours use the [OpenStreetMap format](https://wiki.openstreetmap.org/wiki/Key:opening_hours),
 for example `Mo-Fr 08:00-12:30,14:30-18:30; Sa 08:00-13:00; Su off`. The "open now" badge is
 computed in the visitor's browser in Berlin time.
+
+## Bus & Bahn
+
+The `/verkehr/` page and the "Nächste Busse" card on the home page show scheduled departures
+from the Geyen stops and the best connection into Köln, changing either at Pulheim Bahnhof or
+at Köln-Weiden West (at least 4 minutes to change, at most 60 minutes of waiting).
+
+- Data: the German local transport timetable from [gtfs.de](https://gtfs.de) (DELFI e.V.,
+  CC BY 4.0, credited on the page). The builder downloads it (about 270 MB) once a week,
+  keeps a small index of the trips that matter in the data volume and deletes the download.
+- Times are scheduled only, without delays or cancellations. Each stop links to the VRS live
+  departures.
+- Stops are found by name and distance (`content/transit.yaml`). After the first start,
+  `docker compose logs builder` lists the stops, hubs and destinations it matched; adjust the
+  name tokens there if something is missing.
+- To refresh the timetable right away: `docker compose exec builder node scripts/transit.mjs --force`.
 
 ## Content rules
 
@@ -93,7 +110,8 @@ cd builder
 npm install
 npm run fetch      # writes builder/.data/*.json
 npm run dev        # http://localhost:4321
-npm test           # opening-hours parser and feed fetcher tests
+npm run transit    # optional: downloads the timetable (about 270 MB) and builds .data/transit-index.json
+npm test           # opening-hours parser, feed fetcher and timetable tests
 npm run check      # type checks
 ```
 
@@ -101,5 +119,6 @@ npm run check      # type checks
 
 - [ ] Fill in `content/site.yaml` → `impressum`
 - [ ] Confirm the feed URLs in `content/sources.yaml` (watch `docker compose logs builder`)
+- [ ] Check the matched bus stops in `docker compose logs builder` (see Bus & Bahn)
 - [ ] Confirm shop details with the owners and set `checked`
 - [ ] Send the courtesy notes in `docs/courtesy-notes.md`

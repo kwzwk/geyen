@@ -1,0 +1,35 @@
+---
+import { t, type Lang } from '../lib/i18n';
+
+interface Props {
+  lang: Lang;
+}
+const ui = t(Astro.props.lang);
+---
+
+<div data-transit-labels data-now={ui.now} data-in={ui.in} data-min={ui.min} hidden></div>
+<script>
+  const labels = document.querySelector<HTMLElement>('[data-transit-labels]')!.dataset;
+
+  const update = () => {
+    const now = Date.now();
+    document.querySelectorAll<HTMLElement>('[data-departures]').forEach((table) => {
+      const limit = Number(table.dataset.limit ?? 5);
+      let shown = 0;
+      table.querySelectorAll<HTMLElement>('tr[data-t]').forEach((row) => {
+        const t = Number(row.dataset.t);
+        const visible = t >= now - 30_000 && shown < limit;
+        row.hidden = !visible;
+        if (!visible) return;
+        shown++;
+        const mins = Math.round((t - now) / 60_000);
+        const cell = row.querySelector<HTMLElement>('[data-in]');
+        if (cell) cell.textContent = mins <= 0 ? labels.now! : mins < 60 ? `${labels.in} ${mins} ${labels.min}` : '';
+      });
+      const empty = table.querySelector<HTMLElement>('[data-departures-empty]');
+      if (empty) empty.hidden = shown > 0;
+    });
+  };
+  update();
+  setInterval(update, 30_000);
+</script>

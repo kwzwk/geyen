@@ -1,0 +1,66 @@
+---
+import Base from '../../layouts/Base.astro';
+import DepartureTable from '../../components/DepartureTable.astro';
+import TransitScript from '../../components/TransitScript.astro';
+import LinkList from '../../components/LinkList.astro';
+import { t, langPaths, toLang, NAV, formatDate } from '../../lib/i18n';
+import { transit, departuresAt, toKoeln } from '../../lib/transit';
+import { links } from '../../lib/content';
+
+export const getStaticPaths = langPaths;
+const lang = toLang(Astro.params.lang);
+const ui = t(lang);
+const title = NAV.find((n) => n.slug === 'verkehr')![lang];
+---
+
+<Base lang={lang} slug="verkehr" title={title}>
+  <h1>{title}</h1>
+  <p class="lead">{ui.scheduleNote}</p>
+  {
+    transit ? (
+      <>
+        <section class="card">
+          <h2>{ui.toCologne}</h2>
+          <p class="muted">{ui.toCologneLead}</p>
+          <DepartureTable lang={lang} rows={toKoeln} limit={6} variant="koeln" />
+        </section>
+        <div class="grid">
+          {transit.stops.map((stop) => (
+            <section class="card">
+              <h2>{stop.name}</h2>
+              <p class="muted small">
+                {ui.lines}: {stop.lines.join(', ')}
+                {stop.live && (
+                  <>
+                    {' · '}
+                    <a href={stop.live} rel="noopener" target="_blank">
+                      {ui.liveDepartures}
+                    </a>
+                  </>
+                )}
+              </p>
+              <DepartureTable lang={lang} rows={departuresAt(stop.name)} limit={6} variant="stop" />
+            </section>
+          ))}
+        </div>
+        <p class="muted small">
+          {transit.attributionUrl ? (
+            <a href={transit.attributionUrl} rel="noopener" target="_blank">
+              {transit.attribution}
+            </a>
+          ) : (
+            transit.attribution
+          )}
+          {transit.timetableDate && ` · ${formatDate(lang, transit.timetableDate)}`}
+        </p>
+      </>
+    ) : (
+      <p class="card empty">{ui.noTimetable}</p>
+    )
+  }
+  <section class="card">
+    <h2>{ui.journeyPlanner}</h2>
+    <LinkList lang={lang} items={links.transit} />
+  </section>
+  <TransitScript lang={lang} />
+</Base>

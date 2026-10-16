@@ -4,6 +4,9 @@ import HeadlineList from '../../components/HeadlineList.astro';
 import EventList from '../../components/EventList.astro';
 import LinkList from '../../components/LinkList.astro';
 import OpenNowScript from '../../components/OpenNowScript.astro';
+import DepartureTable from '../../components/DepartureTable.astro';
+import TransitScript from '../../components/TransitScript.astro';
+import { transit, nextDepartures } from '../../lib/transit';
 import { t, href, langPaths, toLang } from '../../lib/i18n';
 import { allHeadlines, highlighted, events, shops, links } from '../../lib/content';
 
@@ -46,6 +49,16 @@ const withHours = shops.filter((s) => s.week);
       <p class="more"><a href={href(lang, 'einkaufen')}>{ui.allShops} →</a></p>
     </section>
 
+    {
+      transit && (
+        <section class="card span-2">
+          <h2>{ui.nextBuses}</h2>
+          <DepartureTable lang={lang} rows={nextDepartures} limit={4} variant="home" />
+          <p class="more"><a href={href(lang, 'verkehr')}>{ui.allDepartures} →</a></p>
+        </section>
+      )
+    }
+
     <section class="card">
       <h2>{ui.emergency}</h2>
       <LinkList lang={lang} items={links.emergency} />
@@ -57,4 +70,5 @@ const withHours = shops.filter((s) => s.week);
     </section>
   </div>
   <OpenNowScript lang={lang} />
+  {transit && <TransitScript lang={lang} />}
 </Base>

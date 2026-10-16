@@ -1,0 +1,99 @@
+---
+// Rows for the next 24 hours are rendered at build time; the browser hides departed
+// rows, shows the next `limit` and keeps the "in X min" column current.
+import { t, type Lang } from '../lib/i18n';
+import { clock, type Departure } from '../lib/transit';
+
+interface Props {
+  lang: Lang;
+  rows: Departure[];
+  limit: number;
+  variant: 'stop' | 'koeln' | 'home';
+}
+const { lang, rows, limit, variant } = Astro.props;
+const ui = t(lang);
+const minutes = (a: number, b: number) => Math.round((b - a) / 60_000);
+const short = (dest: string) => dest.replace(/^Köln\s+/, '');
+---
+
+<div class="table-wrap" data-departures data-limit={limit}>
+  <table class={`departures departures-${variant}`}>
+    <thead>
+      {
+        variant === 'koeln' ? (
+          <tr>
+            <th scope="col">{ui.departure}</th>
+            <th scope="col" class="col-line">{ui.line}</th>
+            <th scope="col">{ui.change}</th>
+            <th scope="col">{ui.arrival}</th>
+          </tr>
+        ) : (
+          <tr>
+            <th scope="col">{ui.departure}</th>
+            <th scope="col">{ui.line}</th>
+            {variant === 'home' && <th scope="col">{ui.stop}</th>}
+            <th scope="col">{ui.direction}</th>
+            {variant === 'stop' && <th scope="col">{ui.toCologne}</th>}
+          </tr>
+        )
+      }
+    </thead>
+    <tbody>
+      {
+        rows.map((d, i) => (
+          <tr data-t={d.t} hidden={i >= limit}>
+            <td class="time">
+              <strong>{clock(d.t)}</strong>
+              <span class="in" data-in />
+              {variant === 'koeln' && (
+                <span class="sub">
+                  <span class={`line line-${d.mode} line-inline`}>{d.line}</span> {d.stop}
+                </span>
+              )}
+            </td>
+            <td class="col-line">
+              <span class={`line line-${d.mode}`}>{d.line}</span>
+            </td>
+            {variant === 'home' && <td>{d.stop}</td>}
+            {variant !== 'koeln' && <td>{d.headsign}</td>}
+            {variant === 'stop' && (
+              <td class="conn">
+                {d.conn ? (
+                  <>
+                    {ui.arrivalShort} {clock(d.conn.arr)} {short(d.conn.dest)}
+                    {d.conn.via ? ` · ${d.conn.line}` : ` · ${ui.direct}`}
+                  </>
+                ) : (
+                  '–'
+                )}
+              </td>
+            )}
+            {variant === 'koeln' && d.conn && (
+              <>
+                <td>
+                  {d.conn.via ? (
+                    <>
+                      {d.conn.via} {clock(d.conn.busArr!)}
+                      <span class="sub">
+                        <span class={`line line-${d.conn.mode}`}>{d.conn.line}</span> {clock(d.conn.dep!)}
+                      </span>
+                    </>
+                  ) : (
+                    ui.direct
+                  )}
+                </td>
+                <td>
+                  <strong>{clock(d.conn.arr)}</strong>
+                  <span class="sub">
+                    {d.conn.dest} · {minutes(d.t, d.conn.arr)} {ui.min}
+                  </span>
+                </td>
+              </>
+            )}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+  <p class="empty" data-departures-empty hidden={rows.length > 0}>{ui.noDepartures}</p>
+</div>

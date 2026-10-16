@@ -90,4 +90,24 @@ a { overflow-wrap: anywhere; }
 
 .site-footer { border-top: 1px solid var(--line); color: var(--muted); font-size: 0.9rem; padding: 20px 0 32px; }
 .footer-links { display: flex; gap: 16px; flex-wrap: wrap; }
+
+.table-wrap { overflow-x: auto; }
+.departures { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.departures th { text-align: left; font-weight: 600; font-size: 0.8rem; color: var(--muted); padding: 4px 10px 6px 0; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.departures td { padding: 8px 10px 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+.departures tr:last-child td { border-bottom: 0; }
+.departures .time { white-space: nowrap; }
+.departures .conn { color: var(--muted); font-size: 0.82rem; }
+.departures .in, .departures .sub { display: block; color: var(--muted); font-size: 0.82rem; }
+.line { display: inline-block; min-width: 2.4em; text-align: center; font-weight: 700; font-size: 0.85rem; border-radius: 6px; padding: 1px 6px; background: var(--line); color: var(--text); white-space: nowrap; }
+.line-bus { background: #8a1538; color: #fff; }
+.line-train { background: #6b6b6b; color: #fff; }
+.line-tram, .line-subway { background: #c4161c; color: #fff; }
+
 [hidden] { display: none !important; }
+.departures .line-inline { display: none; }
+@media (max-width: 560px) {
+  .departures-koeln .col-line { display: none; }
+  .departures-koeln .line-inline { display: inline-block; margin-top: 2px; }
+  .departures-koeln .time .sub { white-space: normal; }
+}
