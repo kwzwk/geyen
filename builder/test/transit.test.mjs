@@ -120,6 +120,9 @@ test('departures with connections to Köln', async () => {
   assert.equal(clock(conn.arr), '08:38');
   assert.equal(conn.dest, 'Köln Hbf');
   assert.equal(friday[2].conn, undefined);
+  assert.equal(friday[0].k, 'b1|1|20261016');
+  assert.equal(conn.kb, 'b1|4|20261016');
+  assert.match(conn.kd, /^r\d\|\d+\|20261016$/);
 
   // Saturday 2026-10-17: service ALL is removed by calendar_dates, so no departures that day.
   const saturday = result.departures.filter((d) => d.t >= Date.parse('2026-10-16T22:00:00Z'));
@@ -129,6 +132,48 @@ test('departures with connections to Köln', async () => {
     { name: 'Geyen Mitte', lines: ['980'], live: 'https://example.org/live' },
     { name: 'Geyen, Von-Frentz-Str.', lines: ['980'], live: null },
   ]);
+});
+
+test('live delays are matched to timetable keys and carried to later stops', async () => {
+  const { FeedMessage, delaysFor } = await import('../scripts/live.mjs');
+  const index = await buildIndex(await makeZip(), CFG);
+  const now = Date.parse('2026-10-16T05:00:00Z');
+  const conn = buildDepartures(index, CFG, now).departures[0].conn;
+  const train = conn.kd.split('|')[0];
+  const at0802 = Math.floor(Date.parse('2026-10-16T06:02:00Z') / 1000);
+  const bytes = FeedMessage.encode(
+    FeedMessage.fromObject({
+      header: { gtfsRealtimeVersion: '2.0', timestamp: Math.floor(now / 1000) },
+      entity: [
+        { id: '1', tripUpdate: { trip: { tripId: 'b1', startDate: '20261016' }, stopTimeUpdate: [{ stopSequence: 2, departure: { time: at0802 + 180 } }] } },
+        { id: '2', tripUpdate: { trip: { tripId: train, startDate: '20261016', scheduleRelationship: 3 } } },
+        { id: '3', tripUpdate: { trip: { tripId: 'elsewhere', startDate: '20261016' }, delay: 60 } },
+      ],
+    }),
+  ).finish();
+  const feed = FeedMessage.toObject(FeedMessage.decode(bytes), { longs: Number });
+  const delays = delaysFor(feed, index, now);
+
+  assert.equal(delays['b1|1|20261016'], undefined, 'no update before stop 2');
+  assert.equal(delays['b1|2|20261016'], 180, 'absolute time compared with the schedule');
+  assert.equal(delays['b1|4|20261016'], 180, 'and carried to later stops');
+  assert.equal(delays[conn.kd], 'x', 'cancelled train');
+  assert.ok(!Object.keys(delays).some((k) => k.startsWith('elsewhere')));
+
+  const withDelay = FeedMessage.toObject(
+    FeedMessage.decode(
+      FeedMessage.encode(
+        FeedMessage.fromObject({
+          header: { gtfsRealtimeVersion: '2.0' },
+          entity: [{ id: '1', tripUpdate: { trip: { tripId: 'b1', startDate: '20261016' }, stopTimeUpdate: [{ stopSequence: 2, departure: { delay: 240 } }] } }],
+        }),
+      ).finish(),
+    ),
+    { longs: Number },
+  );
+  const carried = delaysFor(withDelay, index, now);
+  assert.equal(carried['b1|2|20261016'], 240);
+  assert.equal(carried['b1|4|20261016'], 240, 'a delay applies to later stops');
 });
 
 test('service day start follows daylight saving time', () => {

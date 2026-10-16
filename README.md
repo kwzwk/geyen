@@ -86,10 +86,14 @@ from the Geyen stops and the best connection into Köln, changing either at Pulh
 at Köln-Weiden West (at least 4 minutes to change, at most 60 minutes of waiting).
 
 - Data: the German local transport timetable from [gtfs.de](https://gtfs.de) (DELFI e.V.,
-  CC BY 4.0, credited on the page). The builder downloads it (about 270 MB) once a week,
+  CC BY 4.0, credited on the page). The builder downloads it (about 270 MB) once a day,
   keeps a small index of the trips that matter in the data volume and deletes the download.
-- Times are scheduled only, without delays or cancellations. Each stop links to the VRS live
-  departures.
+- Real time: every 2 minutes the builder reads the [gtfs.de real-time feed](https://gtfs.de/de/realtime/)
+  (CC BY-SA 4.0, credited on the page; several MB per request, paused 1–4 am) and writes the
+  delays and cancellations for Geyen to `/live/transit.json`. The page loads that file from
+  your own server every minute and shows "+3", "pünktlich", "fällt aus" or "Anschluss gefährdet".
+  Trips the operators don't report keep their scheduled time. Turn it off with
+  `realtime.enabled: false` in `content/transit.yaml`.
 - Stops are found by name and distance (`content/transit.yaml`). After the first start,
   `docker compose logs builder` lists the stops, hubs and destinations it matched; adjust the
   name tokens there if something is missing.

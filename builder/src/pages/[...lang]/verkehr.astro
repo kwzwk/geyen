@@ -15,10 +15,11 @@ const title = NAV.find((n) => n.slug === 'verkehr')![lang];
 
 <Base lang={lang} slug="verkehr" title={title}>
   <h1>{title}</h1>
-  <p class="lead">{ui.scheduleNote}</p>
+  <p class="lead">{transit?.realtime ? ui.liveNote : ui.scheduleNote}</p>
   {
     transit ? (
       <>
+        {transit.realtime && <p class="muted small" data-live-status hidden />}
         <section class="card">
           <h2>{ui.toCologne}</h2>
           <p class="muted">{ui.toCologneLead}</p>
@@ -52,6 +53,18 @@ const title = NAV.find((n) => n.slug === 'verkehr')![lang];
             transit.attribution
           )}
           {transit.timetableDate && ` · ${formatDate(lang, transit.timetableDate)}`}
+          {transit.realtime && (
+            <>
+              {' · '}
+              {transit.realtime.attributionUrl ? (
+                <a href={transit.realtime.attributionUrl} rel="noopener" target="_blank">
+                  {transit.realtime.attribution}
+                </a>
+              ) : (
+                transit.realtime.attribution
+              )}
+            </>
+          )}
         </p>
       </>
     ) : (
@@ -62,5 +75,5 @@ const title = NAV.find((n) => n.slug === 'verkehr')![lang];
     <h2>{ui.journeyPlanner}</h2>
     <LinkList lang={lang} items={links.transit} />
   </section>
-  <TransitScript lang={lang} />
+  <TransitScript lang={lang} live={!!transit?.realtime} />
 </Base>

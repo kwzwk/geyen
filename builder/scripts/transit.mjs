@@ -86,6 +86,9 @@ async function writeDepartures(cfg) {
     attribution: cfg.attribution,
     attributionUrl: cfg.attributionUrl,
     timetableDate: index.source?.lastModified ?? index.builtAt,
+    realtime: cfg.realtime?.enabled
+      ? { attribution: cfg.realtime.attribution, attributionUrl: cfg.realtime.attributionUrl }
+      : null,
   });
   log(`${result.departures.length} departures from ${result.stops.length} stops`);
 }

@@ -12,6 +12,9 @@ export interface Connection {
   dep?: number;
   arr: number;
   dest: string;
+  kb?: string;
+  kd?: string;
+  ka?: string;
 }
 export interface Departure {
   stop: string;
@@ -19,6 +22,7 @@ export interface Departure {
   mode: string;
   headsign: string;
   t: number;
+  k?: string;
   conn?: Connection;
 }
 export interface TransitData {
@@ -26,6 +30,7 @@ export interface TransitData {
   timetableDate?: string;
   attribution?: string;
   attributionUrl?: string;
+  realtime?: { attribution?: string; attributionUrl?: string } | null;
   stops: { name: string; lines: string[]; live: string | null }[];
   departures: Departure[];
 }

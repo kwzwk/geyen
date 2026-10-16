@@ -70,5 +70,5 @@ const withHours = shops.filter((s) => s.week);
     </section>
   </div>
   <OpenNowScript lang={lang} />
-  {transit && <TransitScript lang={lang} />}
+  {transit && <TransitScript lang={lang} live={!!transit?.realtime} />}
 </Base>

@@ -111,3 +111,11 @@ a { overflow-wrap: anywhere; }
   .departures-koeln .line-inline { display: inline-block; margin-top: 2px; }
   .departures-koeln .time .sub { white-space: normal; }
 }
+.delay { margin-left: 6px; font-size: 0.78rem; font-weight: 600; color: #1d7a3a; white-space: nowrap; }
+.delay.late, .delay.cancelled, .risk { color: #b3261e; }
+.risk { display: block; font-size: 0.78rem; font-weight: 600; }
+.departures tr.cancelled strong:not(.delay) { text-decoration: line-through; }
+@media (prefers-color-scheme: dark) {
+  .delay { color: #6fcf8f; }
+  .delay.late, .delay.cancelled, .risk { color: #ff8a80; }
+}
