@@ -1,6 +1,7 @@
 ---
 // Rows for the next 24 hours are rendered at build time; the browser hides departed
-// rows, shows the next `limit` and keeps the "in X min" column current.
+// rows, shows the next `limit` and keeps the "in X min" column current. Elements with data-live
+// carry the key of a scheduled time; TransitScript adds the real-time delay next to them.
 import { t, type Lang } from '../lib/i18n';
 import { clock, type Departure } from '../lib/transit';
 
@@ -41,9 +42,17 @@ const short = (dest: string) => dest.replace(/^Köln\s+/, '');
     <tbody>
       {
         rows.map((d, i) => (
-          <tr data-t={d.t} hidden={i >= limit}>
+          <tr
+            data-t={d.t}
+            data-k={d.k}
+            data-kb={d.conn?.kb}
+            data-kd={d.conn?.kd}
+            data-bus-arr={d.conn?.busArr}
+            data-dep={d.conn?.dep}
+            hidden={i >= limit}
+          >
             <td class="time">
-              <strong>{clock(d.t)}</strong>
+              <strong data-live={d.k}>{clock(d.t)}</strong>
               <span class="in" data-in />
               {variant === 'koeln' && (
                 <span class="sub">
@@ -60,7 +69,7 @@ const short = (dest: string) => dest.replace(/^Köln\s+/, '');
               <td class="conn">
                 {d.conn ? (
                   <>
-                    {ui.arrivalShort} {clock(d.conn.arr)} {short(d.conn.dest)}
+                    {ui.arrivalShort} <span data-live={d.conn.ka}>{clock(d.conn.arr)}</span> {short(d.conn.dest)}
                     {d.conn.via ? ` · ${d.conn.line}` : ` · ${ui.direct}`}
                   </>
                 ) : (
@@ -73,9 +82,13 @@ const short = (dest: string) => dest.replace(/^Köln\s+/, '');
                 <td>
                   {d.conn.via ? (
                     <>
-                      {d.conn.via} {clock(d.conn.busArr!)}
+                      {d.conn.via} <span data-live={d.conn.kb}>{clock(d.conn.busArr!)}</span>
                       <span class="sub">
-                        <span class={`line line-${d.conn.mode}`}>{d.conn.line}</span> {clock(d.conn.dep!)}
+                        <span class={`line line-${d.conn.mode}`}>{d.conn.line}</span>{' '}
+                        <span data-live={d.conn.kd}>{clock(d.conn.dep!)}</span>
+                      </span>
+                      <span class="risk" data-risk hidden>
+                        {ui.connectionAtRisk}
                       </span>
                     </>
                   ) : (
@@ -83,7 +96,7 @@ const short = (dest: string) => dest.replace(/^Köln\s+/, '');
                   )}
                 </td>
                 <td>
-                  <strong>{clock(d.conn.arr)}</strong>
+                  <strong data-live={d.conn.ka}>{clock(d.conn.arr)}</strong>
                   <span class="sub">
                     {d.conn.dest} · {minutes(d.t, d.conn.arr)} {ui.min}
                   </span>

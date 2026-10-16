@@ -1,35 +1,117 @@
 ---
+// Keeps the departure tables current in the browser: hides departed rows, updates "in X min" and,
+// when real-time data is enabled, loads /live/transit.json (same origin) every minute and shows
+// delays, cancellations and connections at risk.
 import { t, type Lang } from '../lib/i18n';
 
 interface Props {
   lang: Lang;
+  live?: boolean;
 }
-const ui = t(Astro.props.lang);
+const { lang, live = false } = Astro.props;
+const ui = t(lang);
 ---
 
-<div data-transit-labels data-now={ui.now} data-in={ui.in} data-min={ui.min} hidden></div>
+<div
+  data-transit-labels
+  data-now={ui.now}
+  data-in={ui.in}
+  data-min={ui.min}
+  data-on-time={ui.onTime}
+  data-cancelled={ui.cancelled}
+  data-as-of={ui.liveAsOf}
+  data-unavailable={ui.liveUnavailable}
+  data-live-url={live ? '/live/transit.json' : ''}
+  hidden
+>
+</div>
 <script>
+  type Delay = number | 'x';
   const labels = document.querySelector<HTMLElement>('[data-transit-labels]')!.dataset;
+  const TRANSFER_MS = 2 * 60_000; // the timetable already plans 4 minutes; warn when less than 2 remain
+  const STALE_MS = 10 * 60_000;
+  let delays: Record<string, Delay> = {};
+
+  const delayMs = (key?: string) => {
+    const d = key ? delays[key] : undefined;
+    return typeof d === 'number' ? d * 1000 : 0;
+  };
+
+  const showDelay = (el: HTMLElement) => {
+    let badge = el.nextElementSibling as HTMLElement | null;
+    if (!badge?.classList.contains('delay')) {
+      badge = document.createElement('span');
+      badge.className = 'delay';
+      el.after(badge);
+    }
+    const d = delays[el.dataset.live ?? ''];
+    const mins = typeof d === 'number' ? Math.round(d / 60) : 0;
+    badge.hidden = d === undefined;
+    badge.classList.toggle('late', typeof d === 'number' && mins >= 3);
+    badge.classList.toggle('cancelled', d === 'x');
+    badge.textContent = d === 'x' ? labels.cancelled! : mins > 0 ? `+${mins}` : labels.onTime!;
+  };
 
   const update = () => {
     const now = Date.now();
+    document.querySelectorAll<HTMLElement>('[data-live]').forEach(showDelay);
     document.querySelectorAll<HTMLElement>('[data-departures]').forEach((table) => {
       const limit = Number(table.dataset.limit ?? 5);
       let shown = 0;
       table.querySelectorAll<HTMLElement>('tr[data-t]').forEach((row) => {
-        const t = Number(row.dataset.t);
+        const t = Number(row.dataset.t) + delayMs(row.dataset.k);
+        const cancelled = delays[row.dataset.k ?? ''] === 'x';
+        row.classList.toggle('cancelled', cancelled);
         const visible = t >= now - 30_000 && shown < limit;
         row.hidden = !visible;
         if (!visible) return;
         shown++;
         const mins = Math.round((t - now) / 60_000);
         const cell = row.querySelector<HTMLElement>('[data-in]');
-        if (cell) cell.textContent = mins <= 0 ? labels.now! : mins < 60 ? `${labels.in} ${mins} ${labels.min}` : '';
+        if (cell) {
+          cell.textContent = cancelled ? '' : mins <= 0 ? labels.now! : mins < 60 ? `${labels.in} ${mins} ${labels.min}` : '';
+        }
+        const risk = row.querySelector<HTMLElement>('[data-risk]');
+        if (risk && row.dataset.busArr && row.dataset.dep) {
+          const busArr = Number(row.dataset.busArr) + delayMs(row.dataset.kb);
+          const dep = Number(row.dataset.dep) + delayMs(row.dataset.kd);
+          risk.hidden = cancelled || delays[row.dataset.kd ?? ''] === 'x' || busArr + TRANSFER_MS <= dep;
+        }
       });
       const empty = table.querySelector<HTMLElement>('[data-departures-empty]');
       if (empty) empty.hidden = shown > 0;
     });
   };
+
+  const status = document.querySelector<HTMLElement>('[data-live-status]');
+  const clock = (iso: string) =>
+    new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', hour: '2-digit', minute: '2-digit' }).format(new Date(iso));
+
+  const loadLive = async () => {
+    try {
+      const res = await fetch(labels.liveUrl!, { cache: 'no-store' });
+      if (!res.ok) throw new Error(String(res.status));
+      const data = await res.json();
+      const fresh = Date.now() - Date.parse(data.generatedAt) < STALE_MS;
+      delays = fresh ? (data.delays ?? {}) : {};
+      if (status) {
+        status.textContent = fresh ? `${labels.asOf} ${clock(data.feedTime ?? data.generatedAt)}` : labels.unavailable!;
+        status.hidden = false;
+      }
+    } catch {
+      delays = {};
+      if (status) {
+        status.textContent = labels.unavailable!;
+        status.hidden = false;
+      }
+    }
+    update();
+  };
+
   update();
   setInterval(update, 30_000);
+  if (labels.liveUrl) {
+    loadLive();
+    setInterval(loadLive, 60_000);
+  }
 </script>

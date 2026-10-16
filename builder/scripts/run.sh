@@ -17,6 +17,9 @@ echo "$(date -Iseconds) [run] content from $CONTENT_DIR"
 
 mkdir -p "$SITE_DIR/releases"
 
+# Real-time delays for the bus page, refreshed every few minutes next to the build loop.
+(while true; do node scripts/live.mjs; echo "$(date -Iseconds) [run] live updates stopped, restarting"; sleep 60; done) &
+
 while true; do
   echo "$(date -Iseconds) [run] fetching sources"
   node scripts/fetch.mjs || echo "$(date -Iseconds) [run] fetch failed, building with cached data"

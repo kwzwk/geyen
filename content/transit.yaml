@@ -1,18 +1,31 @@
 # Bus und Bahn: Fahrplandaten aus dem offenen deutschlandweiten GTFS-Datensatz
-# (DELFI e.V., bereitgestellt von gtfs.de, Lizenz CC BY 4.0). Keine Echtzeitdaten.
-# Bus and train: timetable data from the open German GTFS feed. Scheduled times only.
+# (DELFI e.V., bereitgestellt von gtfs.de, Lizenz CC BY 4.0), dazu Verspätungen und Ausfälle
+# aus dem Echtzeit-Datenstrom von gtfs.de (Lizenz CC BY-SA 4.0).
+# Bus and train: timetable from the open German GTFS feed, plus delays from the gtfs.de real-time feed.
 
 gtfsUrl: https://download.gtfs.de/germany/nv_free/latest.zip
 attribution: "Fahrplandaten: DELFI e.V. über gtfs.de, CC BY 4.0"
 attributionUrl: https://gtfs.de/
-# Wie oft der Datensatz (ca. 270 MB) neu geladen wird.
-refreshDays: 7
+# Wie oft der Datensatz (ca. 270 MB) neu geladen wird. Die Echtzeitdaten passen nur zum
+# aktuellen Datensatz, deshalb täglich. / Refresh daily so real-time trips match the timetable.
+refreshDays: 1
 # Wie viele Tage im Voraus Abfahrten berechnet werden.
 daysAhead: 3
 # Mindest-Umstiegszeit am Bahnhof in Minuten.
 transferMinutes: 4
 # Längste Wartezeit auf den Anschluss in Minuten.
 maxWaitMinutes: 60
+
+# Echtzeit: Verspätungen und Ausfälle, alle intervalSeconds Sekunden abgerufen.
+# Der Datenstrom gilt für ganz Deutschland und ist mehrere MB groß; nachts (quietHours) Pause.
+# Real-time delays and cancellations. The feed covers all of Germany and is several MB per request.
+realtime:
+  enabled: true
+  url: https://realtime.gtfs.de/realtime-free.pb
+  intervalSeconds: 120
+  quietHours: [1, 4]
+  attribution: "Echtzeitdaten: gtfs.de, CC BY-SA 4.0"
+  attributionUrl: https://gtfs.de/de/realtime/
 
 # Mittelpunkt von Geyen; Haltestellen werden in diesem Umkreis gesucht.
 center: { lat: 50.9817, lon: 6.7864 }

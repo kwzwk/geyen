@@ -1,5 +1,6 @@
 // Turns the trip index into concrete departures from Geyen for the next few days,
-// each with the best connection to Köln via a hub (scheduled times, no real-time data).
+// each with the best connection to Köln via a hub (scheduled times). Each time carries a key
+// "tripId|stopSequence|serviceDate" that scripts/live.mjs uses to publish real-time delays.
 
 const DAY_MS = 86_400_000;
 
@@ -63,6 +64,8 @@ const MODES = (type) => {
   return 'bus';
 };
 
+const liveKey = (tripId, row, ymd) => `${tripId}|${row[0]}|${ymd}`;
+
 export function buildDepartures(index, cfg, now = Date.now()) {
   const { stops, trips, routes, services } = index;
   const today = berlinDate(now);
@@ -74,7 +77,7 @@ export function buildDepartures(index, cfg, now = Date.now()) {
 
   // Onward departures from each hub towards a destination, sorted by time.
   const onward = {};
-  for (const trip of Object.values(trips)) {
+  for (const [tripId, trip] of Object.entries(trips)) {
     const roles = trip.rows.map((r) => stops[r[1]]);
     const h = roles.findIndex((s) => s.role === 'hub');
     if (h < 0) continue;
@@ -90,6 +93,8 @@ export function buildDepartures(index, cfg, now = Date.now()) {
         line: route.name,
         mode: MODES(route.type),
         dest: roles[d].key,
+        kd: liveKey(tripId, trip.rows[h], ymd),
+        ka: liveKey(tripId, trip.rows[d], ymd),
       });
     }
   }
@@ -107,7 +112,7 @@ export function buildDepartures(index, cfg, now = Date.now()) {
 
   const departures = [];
   const linesAtStop = {};
-  for (const trip of Object.values(trips)) {
+  for (const [tripId, trip] of Object.entries(trips)) {
     const route = routes[trip.route] ?? { name: '?', type: 3 };
     trip.rows.forEach((row, i) => {
       const stop = stops[row[1]];
@@ -125,14 +130,25 @@ export function buildDepartures(index, cfg, now = Date.now()) {
           const busArr = base + later[2] * 1000;
           const c = bestConnection(s.key, busArr);
           if (c && (!conn || c.arr < conn.arr)) {
-            conn = { via: s.key, busArr, line: c.line, mode: c.mode, dep: c.dep, arr: c.arr, dest: c.dest };
+            conn = {
+              via: s.key,
+              busArr,
+              line: c.line,
+              mode: c.mode,
+              dep: c.dep,
+              arr: c.arr,
+              dest: c.dest,
+              kb: liveKey(tripId, later, ymd),
+              kd: c.kd,
+              ka: c.ka,
+            };
           }
         }
         // A bus that reaches the destination directly also counts.
         const direct = trip.rows.slice(i + 1).find((r) => stops[r[1]].role === 'dest');
         if (direct) {
           const arr = base + direct[2] * 1000;
-          if (!conn || arr < conn.arr) conn = { via: null, arr, dest: stops[direct[1]].key };
+          if (!conn || arr < conn.arr) conn = { via: null, arr, dest: stops[direct[1]].key, ka: liveKey(tripId, direct, ymd) };
         }
         departures.push({
           stop: stop.name,
@@ -140,6 +156,7 @@ export function buildDepartures(index, cfg, now = Date.now()) {
           mode: MODES(route.type),
           headsign: trip.headsign,
           t,
+          k: liveKey(tripId, row, ymd),
           ...(conn ? { conn } : {}),
         });
       }
