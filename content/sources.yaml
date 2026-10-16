@@ -47,6 +47,16 @@ feeds:
     homepage: https://germania-geyen.de/
     feed: https://germania-geyen.de/feed/
     max: 6
+  - id: googlenews-germania
+    name: Google News (Germania Geyen)
+    homepage: https://news.google.com/search?q=%22Germania%20Geyen%22&hl=de&gl=DE&ceid=DE:de
+    feed: https://news.google.com/rss/search?q=%22Germania+Geyen%22&hl=de&gl=DE&ceid=DE:de
+    max: 8
+    sourceFromItem: true
+
+# Schlagzeilen aus allen Quellen, die eines dieser Wörter enthalten, erscheinen unter "Neues vom Verein".
+# Headlines from any source containing one of these words appear under the club's news.
+clubKeywords: [Germania Geyen, SC Germania, Germania 1932]
   # Stadt Pulheim: kein Feed gefunden. / Stadt Pulheim: no feed found.
 
 # Einzelne Artikel ohne Feed: nur die Adresse eintragen, die Überschrift
