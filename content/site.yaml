@@ -1,0 +1,18 @@
+# Grunddaten der Seite. Bitte die Impressums-Angaben ausfüllen, bevor die Seite online geht.
+# Basic site settings. Fill in the legal notice (Impressum) before going live.
+domain: geyen.org
+title: Geyen
+# Schlagzeilen, die eines dieser Wörter enthalten, erscheinen auf der Startseite.
+# Headlines containing one of these words are pinned to the home page.
+highlightKeywords:
+  - Geyen
+impressum:
+  # Pflichtangaben nach § 5 DDG. Eine c/o-Adresse ist möglich.
+  name: "VORNAME NACHNAME"
+  street: "STRASSE HAUSNUMMER"
+  city: "50259 Pulheim"
+  email: "kontakt@geyen.org"
+  phone: ""
+# Wie lange der Reverse Proxy Zugriffsprotokolle aufbewahrt (für die Datenschutzerklärung).
+# How long your reverse proxy keeps access logs (shown in the privacy policy).
+logRetentionDays: 7

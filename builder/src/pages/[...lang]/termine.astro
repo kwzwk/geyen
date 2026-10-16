@@ -1,0 +1,19 @@
+---
+import Base from '../../layouts/Base.astro';
+import EventList from '../../components/EventList.astro';
+import { t, langPaths, toLang, NAV } from '../../lib/i18n';
+import { events } from '../../lib/content';
+
+export const getStaticPaths = langPaths;
+const lang = toLang(Astro.params.lang);
+const ui = t(lang);
+const title = NAV.find((n) => n.slug === 'termine')![lang];
+---
+
+<Base lang={lang} slug="termine" title={title}>
+  <h1>{title}</h1>
+  <p class="lead">{ui.externalNote}</p>
+  <section class="card">
+    <EventList lang={lang} items={events} />
+  </section>
+</Base>

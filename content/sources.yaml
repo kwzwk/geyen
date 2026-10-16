@@ -1,0 +1,40 @@
+# Nachrichtenquellen. Es werden NUR Schlagzeile, Datum und Link übernommen –
+# kein Teaser, kein Bild, kein Text. Jeder Eintrag verlinkt auf das Original.
+# News sources. Only headline, date and link are taken; every item links to the original.
+
+feeds:
+  - id: pulheimreport
+    name: Pulheim Report
+    homepage: https://pulheimreport.de/
+    feed: https://pulheimreport.de/feed/
+    max: 8
+  - id: germania
+    name: SC Germania 1932 Geyen
+    homepage: https://germania-geyen.de/
+    feed: https://germania-geyen.de/feed/
+    max: 6
+  - id: antennepulheim
+    name: Antenne Pulheim (Geyen)
+    homepage: https://www.antennepulheim.de/category/geyen/
+    feed: https://www.antennepulheim.de/category/geyen/feed/
+    max: 6
+  # Stadt Pulheim: Feed-Adresse noch unbekannt. Sobald gefunden, hier eintragen.
+  # - id: stadt
+  #   name: Stadt Pulheim
+  #   homepage: https://www.pulheim.de/
+  #   feed: https://www.pulheim.de/...
+
+# Einzelne Artikel ohne Feed: nur die Adresse eintragen, die Überschrift
+# wird automatisch von der Seite gelesen. Datum ist optional.
+# Single articles without a feed: paste the URL only; the title is read from the page.
+pages:
+  - url: https://www.pulheim.de/aktuelles/meldungen-2023/kunstrasenplatz-geyen-fertig.php
+    source: Stadt Pulheim
+
+# Kalender-Feeds (iCal/ICS) von Vereinen, falls vorhanden.
+# Calendar feeds (iCal/ICS) published by clubs, if any.
+calendars: []
+  # - id: beispiel
+  #   name: Verein XY
+  #   homepage: https://example.org/
+  #   ical: https://example.org/termine.ics

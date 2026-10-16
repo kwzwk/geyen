@@ -1,0 +1,19 @@
+---
+import Base from '../../layouts/Base.astro';
+import ShopCard from '../../components/ShopCard.astro';
+import OpenNowScript from '../../components/OpenNowScript.astro';
+import { langPaths, toLang, NAV } from '../../lib/i18n';
+import { shops } from '../../lib/content';
+
+export const getStaticPaths = langPaths;
+const lang = toLang(Astro.params.lang);
+const title = NAV.find((n) => n.slug === 'einkaufen')![lang];
+---
+
+<Base lang={lang} slug="einkaufen" title={title}>
+  <h1>{title}</h1>
+  <div class="shops">
+    {shops.map((shop) => <ShopCard lang={lang} shop={shop} />)}
+  </div>
+  <OpenNowScript lang={lang} />
+</Base>

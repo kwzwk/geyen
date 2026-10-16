@@ -1,0 +1,81 @@
+# Geschäfte und Betriebe in Geyen.
+# Nur Fakten (Name, Adresse, Telefon, Öffnungszeiten) und ein Link zur eigenen Seite des Inhabers.
+# Öffnungszeiten im OpenStreetMap-Format, z. B. "Mo-Fr 08:00-12:30,14:30-18:30; Sa 08:00-13:00".
+# Unbekannte Zeiten: hours weglassen. "checked" = wann zuletzt mit dem Inhaber bestätigt.
+#
+# Shops: facts only plus a link to the owner's own site. Hours use OpenStreetMap syntax.
+# Leave "hours" out when unknown. "checked" = date the owner last confirmed the data.
+#
+# Kategorien / categories: supermarket, bakery, pharmacy, doctor, hairdresser, restaurant, fitness
+
+- name: REWE Familie Giese
+  category: supermarket
+  address: Sintherner Str. 59
+  phone: "02238 9499672"
+  url: https://www.rewe.de/marktseite/pulheim-geyen-sinthern/1763132/rewe-markt-sintherner-str-59/
+  hours: "Mo-Sa 07:00-22:00; Su off"
+  checked: null
+
+- name: Klein's Backstube (im REWE)
+  category: bakery
+  address: Sintherner Str. 59
+  phone: "02238 4787397"
+  checked: null
+
+- name: Bäckerei Voosen, Filiale Geyen
+  category: bakery
+  address: Von-Frentz-Str. 9a
+  phone: "02238 9571245"
+  url: https://baeckerei-voosen.de/filialen/pulheim-geyen/
+  hours: "Mo-Fr 06:00-18:00; Sa 06:00-16:00; Su 08:00-17:00"
+  checked: null
+
+- name: Martinus-Apotheke
+  category: pharmacy
+  address: Von-Frentz-Str. 10a
+  phone: "02238 53015"
+  url: https://martinus-apotheke-pulheim.de/kontakt.html
+  hours: "Mo,Tu,Th,Fr 08:30-12:30,14:30-18:30; We 08:30-12:30; Sa 08:30-13:00; Su off"
+  checked: null
+
+- name: Hausarztpraxis Dr. Christian Sternebeck
+  category: doctor
+  address: Von-Frentz-Str. 10a
+  phone: "02238 55055"
+  checked: null
+
+- name: Haar Design Michaela
+  category: hairdresser
+  address: Von-Frentz-Str. 13
+  phone: "02238 7580"
+  url: http://www.friseur-pulheim.de/
+  checked: null
+
+- name: Pizzeria Da Salvatore
+  category: restaurant
+  address: Von-Frentz-Str. 8
+  phone: "02238 9499600"
+  hours: "Mo off; Tu-Sa 11:30-14:30,17:30-23:00; Su 12:00-23:00"
+  checked: null
+
+- name: Osteria da Mario
+  category: restaurant
+  address: Sintherner Str. 36
+  phone: "02238 4785828"
+  checked: null
+
+- name: Restaurant Täfelchen
+  category: restaurant
+  address: Manstedtener Str. 34a
+  checked: null
+
+- name: Reiterstübchen Pegasus
+  category: restaurant
+  address: Pfarrer-Schlick-Str. 100
+  checked: null
+
+- name: Get Big Gym
+  category: fitness
+  address: Sintherner Str. 36
+  phone: "02238 9665650"
+  checked: null

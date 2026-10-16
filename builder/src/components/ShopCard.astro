@@ -1,0 +1,47 @@
+---
+import { t, formatDate, type Lang } from '../lib/i18n';
+import { weekRows } from '../lib/hours';
+import { site, type Shop } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+  shop: Shop;
+}
+const { lang, shop } = Astro.props;
+const ui = t(lang);
+const tel = shop.phone ? `tel:${shop.phone.replace(/[^\d+]/g, '')}` : null;
+const mail = `mailto:${site.impressum?.email}?subject=${encodeURIComponent(`geyen.org: ${shop.name}`)}`;
+---
+
+<article class="shop" data-hours={shop.week ? JSON.stringify(shop.week) : undefined}>
+  <header>
+    <h3>{shop.name}</h3>
+    <span class="category">{ui.categories[shop.category] ?? shop.category}</span>
+    {shop.week && <span class="badge" data-open-badge hidden />}
+  </header>
+  <p class="address">{shop.address}, 50259 Pulheim-Geyen</p>
+  {
+    shop.week ? (
+      <table class="hours">
+        <tbody>
+          {weekRows(shop.week, ui.days, ui.closed).map((row) => (
+            <tr>
+              <th scope="row">{row.days}</th>
+              <td>{row.hours}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    ) : (
+      <p class="muted">{ui.hoursUnknown}</p>
+    )
+  }
+  <p class="shop-links">
+    {tel && <a href={tel}>{ui.phone} {shop.phone}</a>}
+    {shop.url && <a href={shop.url} rel="noopener" target="_blank">{ui.website}</a>}
+  </p>
+  <p class="muted small">
+    {shop.checked ? `${ui.lastChecked}: ${formatDate(lang, shop.checked)}` : ui.notChecked}{' · '}
+    <a href={mail}>{ui.reportChange}</a>
+  </p>
+</article>

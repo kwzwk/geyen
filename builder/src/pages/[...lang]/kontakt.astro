@@ -1,0 +1,33 @@
+---
+import Base from '../../layouts/Base.astro';
+import LinkList from '../../components/LinkList.astro';
+import { t, href, langPaths, toLang, NAV } from '../../lib/i18n';
+import { links, site } from '../../lib/content';
+
+export const getStaticPaths = langPaths;
+const lang = toLang(Astro.params.lang);
+const ui = t(lang);
+const title = NAV.find((n) => n.slug === 'kontakt')![lang];
+---
+
+<Base lang={lang} slug="kontakt" title={title}>
+  <h1>{title}</h1>
+  <div class="grid">
+    <section class="card">
+      <h2>{ui.emergency}</h2>
+      <LinkList lang={lang} items={links.emergency} />
+    </section>
+    <section class="card">
+      <h2>{ui.services}</h2>
+      <LinkList lang={lang} items={links.contacts} />
+    </section>
+    <section class="card">
+      <h2>geyen.org</h2>
+      <ul class="links">
+        <li><a href={`mailto:${site.impressum?.email}`}>{site.impressum?.email}</a></li>
+        <li><a href={href(lang, 'impressum')}>{ui.impressum}</a></li>
+        <li><a href={href(lang, 'datenschutz')}>{ui.privacy}</a></li>
+      </ul>
+    </section>
+  </div>
+</Base>

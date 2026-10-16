@@ -1,0 +1,69 @@
+---
+import '../styles/global.css';
+import { NAV, t, href, formatDate, type Lang } from '../lib/i18n';
+import { site, status } from '../lib/content';
+
+interface Props {
+  lang: Lang;
+  slug: string;
+  title?: string;
+}
+const { lang, slug, title } = Astro.props;
+const ui = t(lang);
+const other: Lang = lang === 'de' ? 'en' : 'de';
+const pageTitle = title ? `${title} – ${site.title}` : `${site.title} – ${ui.tagline}`;
+const canonical = new URL(href(lang, slug), Astro.site);
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={ui.tagline} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" hreflang="de" href={new URL(href('de', slug), Astro.site)} />
+    <link rel="alternate" hreflang="en" href={new URL(href('en', slug), Astro.site)} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="color-scheme" content="light dark" />
+  </head>
+  <body>
+    <a class="skip" href="#main">{ui.skip}</a>
+    <header class="site-header">
+      <div class="wrap header-row">
+        <a class="brand" href={href(lang, '')}>
+          <span class="brand-name">Geyen</span>
+          <span class="brand-sub">{ui.tagline}</span>
+        </a>
+        <a class="lang" href={href(other, slug)} hreflang={other} lang={other}>{ui.switchLang}</a>
+      </div>
+      <nav class="wrap nav" aria-label={lang === 'de' ? 'Hauptnavigation' : 'Main navigation'}>
+        <ul>
+          {
+            NAV.map((item) => (
+              <li>
+                <a href={href(lang, item.slug)} aria-current={item.slug === slug ? 'page' : undefined}>
+                  {item[lang]}
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+    </header>
+    <main id="main" class="wrap">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="wrap">
+        <p>{ui.footerNote}</p>
+        <p class="footer-links">
+          <a href={href(lang, 'impressum')}>{ui.impressum}</a>
+          <a href={href(lang, 'datenschutz')}>{ui.privacy}</a>
+          {status.fetchedAt && <span>{ui.updated}: {formatDate(lang, status.fetchedAt)}</span>}
+        </p>
+      </div>
+    </footer>
+  </body>
+</html>

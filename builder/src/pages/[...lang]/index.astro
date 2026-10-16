@@ -1,0 +1,60 @@
+---
+import Base from '../../layouts/Base.astro';
+import HeadlineList from '../../components/HeadlineList.astro';
+import EventList from '../../components/EventList.astro';
+import LinkList from '../../components/LinkList.astro';
+import OpenNowScript from '../../components/OpenNowScript.astro';
+import { t, href, langPaths, toLang } from '../../lib/i18n';
+import { allHeadlines, highlighted, events, shops, links } from '../../lib/content';
+
+export const getStaticPaths = langPaths;
+const lang = toLang(Astro.params.lang);
+const ui = t(lang);
+// Headlines mentioning Geyen first, then the newest of the rest.
+const headlines = [...highlighted, ...allHeadlines.filter((h) => !highlighted.includes(h))].slice(0, 6);
+const withHours = shops.filter((s) => s.week);
+---
+
+<Base lang={lang} slug="">
+  <div class="grid">
+    <section class="card span-2">
+      <h2>{ui.latestHeadlines}</h2>
+      <HeadlineList lang={lang} items={headlines} />
+      <p class="more"><a href={href(lang, 'aktuelles')}>{ui.allNews} →</a></p>
+    </section>
+
+    <section class="card">
+      <h2>{ui.nextEvents}</h2>
+      <EventList lang={lang} items={events.slice(0, 3)} />
+      <p class="more"><a href={href(lang, 'termine')}>{ui.allEvents} →</a></p>
+    </section>
+
+    <section class="card">
+      <h2>{ui.openNowList}</h2>
+      <ul class="open-now" data-open-only hidden>
+        {
+          withHours.map((s) => (
+            <li data-hours={JSON.stringify(s.week)}>
+              <span>{s.name}</span>
+              <span class="meta">{ui.categories[s.category] ?? s.category}</span>
+            </li>
+          ))
+        }
+      </ul>
+      <p class="empty" data-none-open hidden>{ui.noneOpen}</p>
+      <p class="muted" data-needs-js>{ui.needsJs}</p>
+      <p class="more"><a href={href(lang, 'einkaufen')}>{ui.allShops} →</a></p>
+    </section>
+
+    <section class="card">
+      <h2>{ui.emergency}</h2>
+      <LinkList lang={lang} items={links.emergency} />
+    </section>
+
+    <section class="card">
+      <h2>{ui.followOnline}</h2>
+      <LinkList lang={lang} items={links.social} />
+    </section>
+  </div>
+  <OpenNowScript lang={lang} />
+</Base>

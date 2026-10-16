@@ -1,0 +1,10 @@
+---
+import Base from '../layouts/Base.astro';
+import { t, href } from '../lib/i18n';
+const ui = t('de');
+---
+
+<Base lang="de" slug="" title={ui.notFound}>
+  <h1>{ui.notFound} <span class="muted">/ Page not found</span></h1>
+  <p><a href={href('de', '')}>{ui.backHome}</a> · <a href={href('en', '')}>Back to home</a></p>
+</Base>

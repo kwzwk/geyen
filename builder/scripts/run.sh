@@ -1,0 +1,30 @@
+#!/bin/sh
+# Builder loop: fetch sources, build the site into a new release folder, then switch
+# the "current" symlink atomically so nginx never serves a half-written site.
+set -u
+
+INTERVAL="${REBUILD_INTERVAL_SECONDS:-1800}"
+SITE_DIR="${SITE_DIR:-/site}"
+KEEP_RELEASES=3
+
+mkdir -p "$SITE_DIR/releases"
+
+while true; do
+  echo "$(date -Iseconds) [run] fetching sources"
+  node scripts/fetch.mjs || echo "$(date -Iseconds) [run] fetch failed, building with cached data"
+
+  name="$(date +%Y%m%d-%H%M%S)"
+  release="$SITE_DIR/releases/$name"
+  # Build inside the container first (Astro moves files around and needs one filesystem),
+  # then copy the finished site into the shared volume.
+  rm -rf dist
+  if node_modules/.bin/astro build --silent && cp -R dist "$release"; then
+    node scripts/publish.mjs "$SITE_DIR" "$name" "$KEEP_RELEASES"
+    echo "$(date -Iseconds) [run] published release $name"
+  else
+    echo "$(date -Iseconds) [run] build failed, keeping the previous release"
+    rm -rf "$release"
+  fi
+
+  sleep "$INTERVAL"
+done
