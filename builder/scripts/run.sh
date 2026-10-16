@@ -8,6 +8,13 @@ SITE_DIR="${SITE_DIR:-/site}"
 DATA_DIR="${DATA_DIR:-/data}"
 KEEP_RELEASES=3
 
+# Use the mounted content folder when it has the site files, otherwise the copy bundled in the image.
+if [ ! -f "${CONTENT_DIR:-/content}/site.yaml" ] && [ -d /app/content-default ]; then
+  echo "$(date -Iseconds) [run] no site.yaml in ${CONTENT_DIR:-/content}, using the content bundled in the image"
+  export CONTENT_DIR=/app/content-default
+fi
+echo "$(date -Iseconds) [run] content from $CONTENT_DIR"
+
 mkdir -p "$SITE_DIR/releases"
 
 while true; do
