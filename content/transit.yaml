@@ -3,10 +3,13 @@
 # aus dem Echtzeit-Datenstrom von gtfs.de (Lizenz CC BY-SA 4.0).
 # Bus and train: timetable from the open German GTFS feed, plus delays from the gtfs.de real-time feed.
 
-gtfsUrl: https://download.gtfs.de/germany/nv_free/latest.zip
+# Der Gesamt-Datensatz: nur er enthält neben Bus und Stadtbahn auch S-Bahn, RE und RB, und nur zu
+# ihm passen die Fahrt-IDs des Echtzeit-Datenstroms. / The full feed: the local-only feed (nv_free)
+# has no S-Bahn or regional trains, and the real-time feed's trip ids belong to the full feed.
+gtfsUrl: https://download.gtfs.de/germany/free/latest.zip
 attribution: "Fahrplandaten: DELFI e.V. über gtfs.de, CC BY 4.0"
 attributionUrl: https://gtfs.de/
-# Wie oft der Datensatz (ca. 270 MB) neu geladen wird. Die Echtzeitdaten passen nur zum
+# Wie oft der Datensatz (mehrere hundert MB) neu geladen wird. Die Echtzeitdaten passen nur zum
 # aktuellen Datensatz, deshalb täglich. / Refresh daily so real-time trips match the timetable.
 refreshDays: 1
 # Wie viele Tage im Voraus Abfahrten berechnet werden.
@@ -39,9 +42,11 @@ stops:
     Geyen Mitte: https://www.vrs.de/his/haltestelle/de:05362:81741
   defaultLiveLink: https://www.vrs.de/
 
-# Umstiegspunkte nach Köln. Ein Name passt, wenn er alle Wörter einer Gruppe enthält.
+# Umstiegspunkte nach Köln. Ein Name passt, wenn er genau in names steht oder alle Wörter einer
+# Gruppe enthält. Der Bahnhof heißt im Fahrplan oft nur "Pulheim", die Bushaltestelle "Pulheim Bahnhof".
 hubs:
   - name: Pulheim Bahnhof
+    names: [Pulheim]
     match: [[pulheim, bahnhof], [pulheim, bf]]
   - name: Köln-Weiden West
     match: [[weiden, west]]
