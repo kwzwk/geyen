@@ -384,3 +384,4 @@ main { padding-bottom: 24px; }
 }
 @media (max-width: 560px) { .departures-stop .conn, .departures-home .col-stop, .card-head [data-live-status] { display: none; } }
 .journey .in:not(:empty)::before { content: '· '; color: var(--muted); font-weight: 400; }
+.metric .s [data-in]:not(:empty)::before { content: '· '; }

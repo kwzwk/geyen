@@ -57,29 +57,44 @@ const ui = t(lang);
     document.querySelectorAll<HTMLElement>('[data-live]').forEach(showDelay);
     document.querySelectorAll<HTMLElement>('[data-departures]').forEach((table) => {
       const limit = Number(table.dataset.limit ?? 5);
-      let shown = 0;
-      table.querySelectorAll<HTMLElement>('[data-t]').forEach((row) => {
+      // Readouts (data-pick) show one usable row: "next" skips cancelled buses, "arrival" picks the
+      // connection that reaches Köln first, leaving out cancelled ones and missed changes.
+      const pick = table.dataset.pick;
+      const rows = [...table.querySelectorAll<HTMLElement>('[data-t]')].map((row) => {
         const t = Number(row.dataset.t) + delayMs(row.dataset.k);
         const cancelled = delays[row.dataset.k ?? ''] === 'x';
-        row.classList.toggle('cancelled', cancelled);
-        const visible = t >= now - 30_000 && shown < limit;
-        row.hidden = !visible;
-        if (!visible) return;
-        shown++;
+        let atRisk = false;
+        if (row.dataset.busArr && row.dataset.dep) {
+          const busArr = Number(row.dataset.busArr) + delayMs(row.dataset.kb);
+          const dep = Number(row.dataset.dep) + delayMs(row.dataset.kd);
+          atRisk = !cancelled && delays[row.dataset.kd ?? ''] !== 'x' && busArr + TRANSFER_MS > dep;
+        }
+        const arr = Number(row.dataset.arr) + delayMs(row.dataset.ka);
+        const usable = !cancelled && !atRisk && delays[row.dataset.kd ?? ''] !== 'x' && delays[row.dataset.ka ?? ''] !== 'x';
+        return { row, t, cancelled, atRisk, arr, usable, upcoming: t >= now - 30_000 };
+      });
+      let chosen: typeof rows;
+      if (pick === 'arrival') {
+        const best = rows.filter((r) => r.upcoming && r.usable).sort((a, b) => a.arr - b.arr || a.t - b.t)[0];
+        chosen = best ? [best] : [];
+      } else {
+        chosen = rows.filter((r) => r.upcoming && (pick !== 'next' || !r.cancelled)).slice(0, limit);
+      }
+      rows.forEach((r) => {
+        r.row.classList.toggle('cancelled', r.cancelled);
+        r.row.hidden = !chosen.includes(r);
+      });
+      chosen.forEach(({ row, t, cancelled, atRisk }) => {
         const mins = Math.round((t - now) / 60_000);
         const cell = row.querySelector<HTMLElement>('[data-in]');
         if (cell) {
           cell.textContent = cancelled ? '' : mins <= 0 ? labels.now! : mins < 60 ? `${labels.in} ${mins} ${labels.min}` : '';
         }
         const risk = row.querySelector<HTMLElement>('[data-risk]');
-        if (risk && row.dataset.busArr && row.dataset.dep) {
-          const busArr = Number(row.dataset.busArr) + delayMs(row.dataset.kb);
-          const dep = Number(row.dataset.dep) + delayMs(row.dataset.kd);
-          risk.hidden = cancelled || delays[row.dataset.kd ?? ''] === 'x' || busArr + TRANSFER_MS <= dep;
-        }
+        if (risk) risk.hidden = !atRisk;
       });
       const empty = table.querySelector<HTMLElement>('[data-departures-empty]');
-      if (empty) empty.hidden = shown > 0;
+      if (empty) empty.hidden = chosen.length > 0;
     });
   };
 

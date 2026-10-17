@@ -5,7 +5,7 @@ import EventList from '../../components/EventList.astro';
 import OpenNowScript from '../../components/OpenNowScript.astro';
 import DepartureTable from '../../components/DepartureTable.astro';
 import TransitScript from '../../components/TransitScript.astro';
-import { transit, nextDepartures, toKoeln, clock } from '../../lib/transit';
+import { transit, nextDepartures, toKoeln, clock, type Departure } from '../../lib/transit';
 import { t, href, langPaths, toLang } from '../../lib/i18n';
 import { allHeadlines, highlighted, events, shops, links, label } from '../../lib/content';
 
@@ -18,7 +18,17 @@ const withHours = shops.filter((s) => s.week);
 const nextEvent = events[0];
 const dayMonth = (iso: string) =>
   new Intl.DateTimeFormat('de-DE', { timeZone: 'Europe/Berlin', day: '2-digit', month: '2-digit' }).format(new Date(iso));
-const minutes = (a: number, b: number) => Math.round((b - a) / 60_000);
+// Everything TransitScript needs to judge a Köln connection: delays, the change and the arrival.
+const connAttrs = (d: Departure) => ({
+  'data-t': d.t,
+  'data-k': d.k,
+  'data-kb': d.conn?.kb,
+  'data-kd': d.conn?.kd,
+  'data-ka': d.conn?.ka,
+  'data-bus-arr': d.conn?.busArr,
+  'data-dep': d.conn?.dep,
+  'data-arr': d.conn?.arr,
+});
 // Readouts render enough upcoming rows for the build interval; TransitScript shows the first one not yet gone.
 const READOUT_ROWS = 40;
 const alarm = new Set(['112', '110']);
@@ -93,9 +103,9 @@ const icon = {
               </a>
             )}
             {toKoeln.length > 0 && (
-              <div class="float float-chip" aria-hidden="true" data-departures data-limit="1">
+              <div class="float float-chip" aria-hidden="true" data-departures data-limit="1" data-pick="arrival">
                 {toKoeln.slice(0, READOUT_ROWS).map((d, i) => (
-                  <div data-t={d.t} data-k={d.k} hidden={i > 0}>
+                  <div {...connAttrs(d)} hidden={i > 0}>
                     <div class="chip-label">{ui.arrivalCologne}</div>
                     <div class="chip-big">
                       <span data-live={d.conn!.ka}>{clock(d.conn!.arr)}</span>
@@ -117,7 +127,7 @@ const icon = {
       <div class="metrics">
         {
           transit && (
-            <div data-departures data-limit="1">
+            <div data-departures data-limit="1" data-pick="next">
               {nextDepartures.slice(0, READOUT_ROWS).map((d, i) => (
                 <a class="metric" href={href(lang, 'verkehr')} data-t={d.t} data-k={d.k} hidden={i > 0}>
                   <span class="k">{ui.nextBus}</span>
@@ -125,7 +135,7 @@ const icon = {
                     <span data-live={d.k}>{clock(d.t)}</span>
                   </span>
                   <span class="s">
-                    {d.line} → {d.headsign}
+                    {d.line} → {d.headsign} <span data-in />
                   </span>
                 </a>
               ))}
@@ -134,15 +144,15 @@ const icon = {
         }
         {
           toKoeln.length > 0 && (
-            <div data-departures data-limit="1">
+            <div data-departures data-limit="1" data-pick="arrival">
               {toKoeln.slice(0, READOUT_ROWS).map((d, i) => (
-                <a class="metric" href={href(lang, 'verkehr')} data-t={d.t} data-k={d.k} hidden={i > 0}>
+                <a class="metric" href={href(lang, 'verkehr')} {...connAttrs(d)} hidden={i > 0}>
                   <span class="k">{ui.toCologne}</span>
                   <span class="v">
                     <span data-live={d.conn!.ka}>{clock(d.conn!.arr)}</span>
                   </span>
                   <span class="s">
-                    {ui.arrivalShort} {d.conn!.dest} · {minutes(d.t, d.conn!.arr)} {ui.min} {ui.travelTime}
+                    {ui.arrivalShort} {d.conn!.dest} · {ui.departsShort} {clock(d.t)} <span data-in />
                   </span>
                 </a>
               ))}
