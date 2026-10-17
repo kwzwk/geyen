@@ -46,6 +46,12 @@ export const FeedMessage = protobuf.parse(PROTO).root.lookupType('FeedMessage');
 
 const TRIP_CANCELED = 3;
 const STOP_SKIPPED = 1;
+// A bus or train is never hours early or a day late. A delay outside this range means the feed's
+// trip id now names a different trip than our timetable index (for example after the feed moved to
+// a newer timetable), and applying it would hide or shift departures that are still to come.
+const MAX_EARLY_S = 15 * 60;
+const MAX_LATE_S = 6 * 3600;
+const plausible = (delay) => (delay !== null && delay >= -MAX_EARLY_S && delay <= MAX_LATE_S ? delay : null);
 
 /**
  * Delays per live key "tripId|stopSequence|serviceDate" for the trips in the index:
@@ -73,7 +79,7 @@ export function delaysFor(feed, index, now = Date.now()) {
       .map((u) => {
         const seq = u.stop_sequence ?? u.stopSequence ?? seqOfStop[u.stop_id ?? u.stopId];
         const row = rowBySeq[seq];
-        const delay = eventDelay(u.departure, row?.[3], ymd) ?? eventDelay(u.arrival, row?.[2], ymd);
+        const delay = plausible(eventDelay(u.departure, row?.[3], ymd) ?? eventDelay(u.arrival, row?.[2], ymd));
         return { seq, delay, skipped: (u.schedule_relationship ?? u.scheduleRelationship) === STOP_SKIPPED };
       })
       .filter((u) => u.seq !== undefined)
@@ -84,7 +90,7 @@ export function delaysFor(feed, index, now = Date.now()) {
         out[key] = 'x';
         continue;
       }
-      const delay = updates.filter((u) => u.seq <= seq && u.delay !== null).at(-1)?.delay ?? update.delay ?? null;
+      const delay = updates.filter((u) => u.seq <= seq && u.delay !== null).at(-1)?.delay ?? plausible(update.delay ?? null);
       if (delay !== null) out[key] = delay;
     }
   }
