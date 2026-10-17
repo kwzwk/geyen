@@ -176,6 +176,33 @@ test('live delays are matched to timetable keys and carried to later stops', asy
   assert.equal(carried['b1|4|20261016'], 240, 'a delay applies to later stops');
 });
 
+test('impossible live delays are ignored, so they cannot hide departures still to come', async () => {
+  const { FeedMessage, delaysFor } = await import('../scripts/live.mjs');
+  const index = await buildIndex(await makeZip(), CFG);
+  const now = Date.parse('2026-10-16T05:00:00Z');
+  const at0802 = Math.floor(Date.parse('2026-10-16T06:02:00Z') / 1000);
+  const feed = FeedMessage.toObject(
+    FeedMessage.decode(
+      FeedMessage.encode(
+        FeedMessage.fromObject({
+          header: { gtfsRealtimeVersion: '2.0' },
+          entity: [
+            // The feed's trip b1 now runs three hours earlier: a different trip under the same id.
+            { id: '1', tripUpdate: { trip: { tripId: 'b1', startDate: '20261016' }, stopTimeUpdate: [{ stopSequence: 2, departure: { time: at0802 - 3 * 3600 } }] } },
+            { id: '2', tripUpdate: { trip: { tripId: 'b2', startDate: '20261016' }, stopTimeUpdate: [{ stopSequence: 1, departure: { delay: -7200 } }, { stopSequence: 2, departure: { delay: 120 } }] } },
+          ],
+        }),
+      ).finish(),
+    ),
+    { longs: Number },
+  );
+  const delays = delaysFor(feed, index, now);
+  assert.equal(delays['b1|2|20261016'], undefined);
+  assert.equal(delays['b1|4|20261016'], undefined);
+  assert.equal(delays['b2|1|20261016'], undefined, 'two hours early is not a real delay');
+  assert.equal(delays['b2|2|20261016'], 120, 'a plausible update on the same trip still counts');
+});
+
 test('service day start follows daylight saving time', () => {
   // 2026-10-25 is the switch from CEST to CET; GTFS times count from noon minus 12 h.
   assert.equal(new Date(serviceDayStart('20261024')).toISOString(), '2026-10-23T22:00:00.000Z');
