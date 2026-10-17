@@ -16,6 +16,9 @@ const norm = (s) => s.toLowerCase().normalize('NFC');
 /** True when the name contains every word of at least one group. */
 export const matchesAny = (name, groups) =>
   groups.some((group) => [].concat(group).every((word) => norm(name).includes(norm(String(word)))));
+/** A hub or destination matches by one of its exact `names` or by its word groups. */
+const matchesPlace = (name, place) =>
+  (place.names ?? []).some((n) => norm(n) === norm(name)) || matchesAny(name, place.match ?? []);
 
 export async function buildIndex(zipFile, cfg, log = () => {}) {
   const zip = await openZip(zipFile);
@@ -37,12 +40,12 @@ export async function buildIndex(zipFile, cfg, log = () => {}) {
         return;
       }
       if (km > cfg.radiusKm) return;
-      const hub = cfg.hubs.find((h) => matchesAny(name, h.match));
+      const hub = cfg.hubs.find((h) => matchesPlace(name, h));
       if (hub) {
         stops[id] = { name, role: 'hub', key: hub.name };
         return;
       }
-      const dest = cfg.destinations.find((d) => matchesAny(name, d.match));
+      const dest = cfg.destinations.find((d) => matchesPlace(name, d));
       if (dest) stops[id] = { name, role: 'dest', key: dest.name };
     });
     const summary = (role) => [...new Set(Object.values(stops).filter((s) => s.role === role).map((s) => s.name))];

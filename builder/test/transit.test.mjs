@@ -61,7 +61,7 @@ const CFG = {
   center: { lat: 50.9817, lon: 6.7864 },
   stops: { match: ['geyen'], radiusKm: 2, liveLinks: { 'Geyen Mitte': 'https://example.org/live' } },
   hubs: [
-    { name: 'Pulheim Bahnhof', match: [['pulheim', 'bahnhof'], ['pulheim', 'bf']] },
+    { name: 'Pulheim Bahnhof', names: ['Pulheim'], match: [['pulheim', 'bahnhof'], ['pulheim', 'bf']] },
     { name: 'Köln-Weiden West', match: [['weiden', 'west']] },
   ],
   destinations: [
@@ -74,11 +74,11 @@ const CFG = {
   maxWaitMinutes: 60,
 };
 
-async function makeZip() {
+async function makeZip(files = FILES) {
   const dir = await mkdtemp(path.join(tmpdir(), 'geyen-gtfs-'));
   const file = path.join(dir, 'gtfs.zip');
   const zip = new yazl.ZipFile();
-  for (const [name, body] of Object.entries(FILES)) zip.addBuffer(Buffer.from(body), name);
+  for (const [name, body] of Object.entries(files)) zip.addBuffer(Buffer.from(body), name);
   zip.end();
   await new Promise((resolve) => zip.outputStream.pipe(createWriteStream(file)).on('close', resolve));
   return file;
@@ -94,6 +94,27 @@ test('index keeps Geyen trips and hub-to-Köln trips only', async () => {
   assert.equal(index.trips.b2.lastSeq, 3);
   assert.equal(index.routes.RB27.name, 'RB 27');
   assert.deepEqual(index.services.ALL.remove, ['20261017']);
+});
+
+test('a hub also matches a stop by its exact name, but not other stops containing that word', async () => {
+  const files = {
+    ...FILES,
+    'stops.txt': `${FILES['stops.txt']}P2,Pulheim,50.9995,6.8060
+P3,Pulheim Rathaus,50.9980,6.8000
+`,
+    'stop_times.txt': `${FILES['stop_times.txt']}r4,08:25:00,08:25:00,P2,1
+r4,08:43:00,08:43:00,H1,2
+x1,08:25:00,08:25:00,P3,1
+x1,08:50:00,08:50:00,H1,2
+`,
+    'trips.txt': `${FILES['trips.txt']}RB27,ALL,r4,Köln Hbf
+R980,ALL,x1,Köln Hbf
+`,
+  };
+  const index = await buildIndex(await makeZip(files), CFG);
+  assert.ok(index.trips.r4, 'the train from the station named just "Pulheim" counts');
+  assert.equal(index.stops.P2.key, 'Pulheim Bahnhof');
+  assert.equal(index.trips.x1, undefined, 'a bus from Pulheim Rathaus is not a hub trip');
 });
 
 test('departures with connections to Köln', async () => {

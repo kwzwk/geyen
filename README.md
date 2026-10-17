@@ -85,8 +85,8 @@ The `/verkehr/` page and the "Nächste Busse" card on the home page show schedul
 from the Geyen stops and the best connection into Köln, changing either at Pulheim Bahnhof or
 at Köln-Weiden West (at least 4 minutes to change, at most 60 minutes of waiting).
 
-- Data: the German local transport timetable from [gtfs.de](https://gtfs.de) (DELFI e.V.,
-  CC BY 4.0, credited on the page). The builder downloads it (about 270 MB) once a day,
+- Data: the full German timetable (buses, trams and trains) from [gtfs.de](https://gtfs.de) (DELFI e.V.,
+  CC BY 4.0, credited on the page). The builder downloads it (several hundred MB) once a day,
   keeps a small index of the trips that matter in the data volume and deletes the download.
 - Real time: every 2 minutes the builder reads the [gtfs.de real-time feed](https://gtfs.de/de/realtime/)
   (CC BY-SA 4.0, credited on the page; several MB per request, paused 1–4 am) and writes the

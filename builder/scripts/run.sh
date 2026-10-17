@@ -38,7 +38,7 @@ while true; do
     rm -rf "$release"
   fi
 
-  # The timetable (about 270 MB) is refreshed after publishing, so the site is never held up by it.
+  # The timetable (several hundred MB) is refreshed after publishing, so the site is never held up by it.
   # When a new index was built, rebuild right away instead of waiting.
   before="$(stat -c %Y "$DATA_DIR/transit-index.json" 2>/dev/null || echo 0)"
   node scripts/transit.mjs || echo "$(date -Iseconds) [run] timetable refresh failed, keeping the previous one"
