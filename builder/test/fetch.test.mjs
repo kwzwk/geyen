@@ -85,3 +85,47 @@ test('toHeadline filters by keyword and takes the publisher from aggregator feed
   );
   assert.equal(toHeadline({ title: 'Ohne Link' }, {}), null);
 });
+
+test('flea market dates are read from the events API once per refresh period', async (t) => {
+  let hits = 0;
+  const soonDate = new Date(Date.now() + 7 * 86_400_000).toISOString().slice(0, 10);
+  const server = http.createServer((req, res) => {
+    hits++;
+    const url = new URL(req.url, 'http://x');
+    const page = Number(url.searchParams.get('page'));
+    const events =
+      page === 1
+        ? [
+            { id: 7, title: 'Flohmarkt bei Selgros &amp; Co', start_date: `${soonDate} 11:00:00`, end_date: `${soonDate} 18:00:00`, url: 'https://example.org/e/7', venue: { venue: 'Selgros', address: 'Von-Hünefeld-Straße 100', zip: '50829', city: 'Köln' } },
+            { id: 8, title: 'Ohne Ort', start_date: `${soonDate} 10:00:00`, url: 'https://example.org/e/8', venue: [] },
+          ]
+        : [{ id: 9, title: 'Kein Link', start_date: `${soonDate} 10:00:00` }];
+    res.setHeader('content-type', 'application/json');
+    res.end(JSON.stringify({ events, total_pages: 2 }));
+  });
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  t.after(() => server.close());
+  const base = `http://127.0.0.1:${server.address().port}`;
+
+  const content = await mkdtemp(path.join(tmpdir(), 'geyen-content-'));
+  const data = await mkdtemp(path.join(tmpdir(), 'geyen-data-'));
+  await writeFile(path.join(content, 'sources.yaml'), 'feeds: []\n');
+  await writeFile(
+    path.join(content, 'activities.yaml'),
+    `marketFeed: {name: Kalender, api: ${base}/wp-json/tribe/events/v1/events, search: [Flohmarkt], refreshDays: 7}\n`,
+  );
+  const env = { ...process.env, CONTENT_DIR: content, DATA_DIR: data };
+  await run(process.execPath, [script], { env });
+
+  const markets = JSON.parse(await readFile(path.join(data, 'markets.json'), 'utf8'));
+  assert.equal(hits, 2);
+  assert.deepEqual(markets.items.map((m) => [m.name, m.town, m.time, m.organiser]), [
+    ['Flohmarkt bei Selgros & Co', 'Köln', '11:00–18:00', 'Kalender'],
+    ['Ohne Ort', '', '10:00', 'Kalender'],
+  ]);
+
+  // Within the refresh period the API is not asked again.
+  await run(process.execPath, [script], { env });
+  assert.equal(hits, 2);
+  assert.equal(JSON.parse(await readFile(path.join(data, 'markets.json'), 'utf8')).items.length, 2);
+});
