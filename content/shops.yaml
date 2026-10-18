@@ -6,7 +6,7 @@
 # Shops: facts only plus a link to the owner's own site. Hours use OpenStreetMap syntax.
 # Leave "hours" out when unknown. "checked" = date the owner last confirmed the data.
 #
-# Kategorien / categories: supermarket, bakery, pharmacy, doctor, hairdresser, restaurant, fitness
+# Kategorien / categories: supermarket, bakery, pharmacy, doctor, dentist, hairdresser, restaurant, fitness
 
 - name: REWE Familie Giese
   category: supermarket
@@ -44,6 +44,12 @@
   phone: "02238 55055"
   checked: null
 
+- name: Zahnarztpraxis Andreas Nastaly
+  category: dentist
+  address: Von-Frentz-Str. 13-15
+  phone: "02238 52041"
+  checked: null
+
 - name: Haar Design Michaela
   category: hairdresser
   address: Von-Frentz-Str. 13
@@ -62,6 +68,14 @@
   category: restaurant
   address: Sintherner Str. 36
   phone: "02238 4785828"
+  checked: null
+
+- name: Swagat (indisch)
+  category: restaurant
+  address: Sintherner Str. 36
+  phone: "02238 4784606"
+  url: https://www.swagat-pulheim.de/
+  hours: "Mo,We-Sa 11:30-14:30,17:30-22:30; Tu off; Su 12:30-22:00"
   checked: null
 
 - name: Restaurant Täfelchen

@@ -26,7 +26,9 @@ export interface Site {
 }
 export interface LinkItem { label: string; label_en?: string; url: string; value?: string }
 export interface Headline { title: string; url: string; date: string | null; source: string; sourceUrl?: string }
-export interface Event { date: string; end?: string | null; time?: string; title: string; organiser: string; url: string }
+export interface Event {
+  date: string; end?: string | null; time?: string; title: string; organiser: string; url: string; family?: boolean;
+}
 export interface Shop {
   name: string; category: string; address: string; phone?: string; url?: string;
   hours?: string; checked?: string | null; week: Week | null;
@@ -99,5 +101,45 @@ const feedEvents = Object.values(json<Record<string, Event[]>>('calendars.json',
 export const events: Event[] = [...manualEvents, ...feedEvents]
   .filter((e) => (e.end ?? e.date).slice(0, 10) >= today)
   .sort((a, b) => a.date.localeCompare(b.date));
+
+// Activities: flea markets and family outings, limited to a radius around Geyen.
+interface Place { name: string; town: string; address: string; lat: number; lon: number; url: string }
+interface MarketVenue extends Place { organiser: string; time?: string; dates: (string | Date)[] }
+interface FamilyPlace extends Place { type: string; free?: boolean }
+interface Activities { center?: { lat: number; lon: number }; radiusKm?: number; markets?: MarketVenue[]; family?: FamilyPlace[] }
+
+const activities = yaml<Activities>('activities.yaml', {});
+const center = activities.center ?? { lat: 50.9817, lon: 6.7864 };
+export const radiusKm = activities.radiusKm ?? 25;
+
+/** Straight-line distance in km (haversine). */
+export const distanceKm = (a: { lat: number; lon: number }, b: { lat: number; lon: number }) => {
+  const rad = (d: number) => (d * Math.PI) / 180;
+  const h =
+    Math.sin(rad(b.lat - a.lat) / 2) ** 2 +
+    Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(rad(b.lon - a.lon) / 2) ** 2;
+  return 2 * 6371 * Math.asin(Math.sqrt(h));
+};
+const isoDate = (d: string | Date) => (d instanceof Date ? d.toISOString() : String(d)).slice(0, 10);
+const nearby = <T extends Place>(p: T) => ({ ...p, km: distanceKm(center, p) });
+
+export type Market = Omit<MarketVenue, 'dates'> & { date: string; km: number };
+/** Upcoming flea market dates within radiusKm, soonest first, nearest first on the same day. */
+export const markets: Market[] = (activities.markets ?? [])
+  .map(nearby)
+  .filter((m) => m.km <= radiusKm)
+  .flatMap(({ dates, ...m }) => dates.map((d) => ({ ...m, date: isoDate(d) })))
+  .filter((m) => m.date >= today)
+  .sort((a, b) => a.date.localeCompare(b.date) || a.km - b.km);
+
+export type Outing = FamilyPlace & { km: number };
+/** Family outings within radiusKm, nearest first. */
+export const outings: Outing[] = (activities.family ?? [])
+  .map(nearby)
+  .filter((p) => p.km <= radiusKm)
+  .sort((a, b) => a.km - b.km);
+
+/** Upcoming events marked for families. */
+export const familyEvents = events.filter((e) => e.family);
 
 export const label = (item: LinkItem, lang: 'de' | 'en') => (lang === 'en' && item.label_en) || item.label;

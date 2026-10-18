@@ -1,0 +1,244 @@
+# Aktivitäten: Flohmärkte und Ausflugsziele für Familien rund um Geyen.
+# Nur Fakten + Link zur Seite des Veranstalters bzw. Betreibers.
+# Die Seite zeigt automatisch nur kommende Flohmarkt-Termine und nur Orte im Umkreis von radiusKm
+# um center (Luftlinie). Vergangene Termine verschwinden beim nächsten Neubau von selbst.
+# lat/lon: ungefähre Lage (reicht für die Entfernung); bei neuen Einträgen z. B. von openstreetmap.org.
+#
+# Activities: flea markets and family outings around Geyen. Facts plus a link to the organiser only.
+# Only upcoming market dates and places within radiusKm of center (straight line) are shown;
+# past dates drop out at the next rebuild. lat/lon are approximate, good enough for the distance.
+
+center: { lat: 50.9817, lon: 6.7864 }
+radiusKm: 25
+
+# Flohmärkte: ein Eintrag je Marktplatz, mit allen bekannten Terminen.
+# Flea markets: one entry per venue, with all known dates.
+# Felder: name, town, address, lat, lon, organiser, url, time (optional), dates (JJJJ-MM-TT)
+markets:
+  - name: Flohmarkt bei Segmüller
+    town: Pulheim
+    address: Segmüller Allee 1
+    lat: 50.995
+    lon: 6.825
+    organiser: Melan
+    url: https://www.melan.de/fuer-alle/standorte/details/~/Pulheim-SEGMUeLLER-285b/
+    time: "11:00–18:00"
+    dates: [2026-10-25]
+
+  - name: Flohmarkt Butzweilerhof (Selgros)
+    town: Köln-Ossendorf
+    address: Von-Hünefeld-Straße 100
+    lat: 50.977
+    lon: 6.895
+    organiser: Melan
+    url: https://www.melan.de/fuer-alle/standorte/details/~/Koeln-Butzweilerhof-SELGROS-232y/
+    time: "11:00–18:00"
+    dates: [2026-10-18]
+
+  - name: Flohmarkt Butzweilerhof (IKEA)
+    town: Köln-Ossendorf
+    address: Butzweilerstraße 51
+    lat: 50.973
+    lon: 6.906
+    organiser: Melan
+    url: https://www.melan.de/fuer-alle/standorte/details/~/Koeln-Butzweilerhof-IKEA-218w/
+    time: "11:00–18:00"
+    dates: [2026-11-08, 2026-12-13]
+
+  - name: Flohmarkt Marsdorf (Globus)
+    town: Köln-Marsdorf
+    address: Max-Planck-Straße 9
+    lat: 50.922
+    lon: 6.854
+    organiser: Melan
+    url: https://www.melan.de/fuer-alle/standorte/details/~/Koeln-Marsdorf-GLOBUS-290C/
+    time: "11:00–18:00"
+    dates: [2026-10-18, 2026-11-15, 2026-12-20]
+
+  - name: Flohmarkt Frechen (Selgros)
+    town: Frechen
+    address: Europaallee 35
+    lat: 50.905
+    lon: 6.820
+    organiser: Melan
+    url: https://www.melan.de/fuer-alle/standorte/details/~/Frechen-SELGROS-142O/
+    time: "11:00–18:00"
+    dates: [2026-11-08, 2026-12-13]
+
+  - name: Flohmarkt Hürth Park
+    town: Hürth
+    address: Theresienhöhe 4
+    lat: 50.872
+    lon: 6.873
+    organiser: Melan
+    url: https://www.melan.de/fuer-alle/standorte/details/~/Huerth-HUeRTH-PARK-296V/
+    time: "11:00–18:00"
+    dates: [2026-10-25, 2026-11-29]
+
+  - name: Flohmarkt Godorf (IKEA)
+    town: Köln-Godorf
+    address: Godorfer Hauptstraße 171
+    lat: 50.850
+    lon: 6.983
+    organiser: Melan
+    url: https://www.melan.de/fuer-alle/standorte/details/~/Koeln-Godorf-IKEA-206h/
+    time: "11:00–18:00"
+    dates: [2026-10-25, 2026-11-29, 2026-12-27]
+
+  - name: Flohmarkt Godorf (Metro)
+    town: Köln-Godorf
+    address: Otto-Hahn-Straße 15
+    lat: 50.851
+    lon: 6.975
+    organiser: Melan
+    url: https://www.melan.de/fuer-alle/standorte/details/~/Koeln-Godorf-METRO-5i/
+    time: "11:00–18:00"
+    dates: [2026-11-08, 2026-12-06]
+
+  - name: Flohmarkt Dormagen (HIT)
+    town: Dormagen
+    address: Lübecker Str. 1
+    lat: 51.085
+    lon: 6.835
+    organiser: Melan
+    url: https://www.melan.de/fuer-alle/standorte/details/~/Dormagen-HIT-187G/
+    time: "11:00–18:00"
+    dates: [2026-11-08, 2026-12-06]
+
+  # Neuss liegt genau an der 25-km-Grenze; was angezeigt wird, entscheidet die Entfernung.
+  # Neuss sits right at the 25 km edge; the distance decides which venue is shown.
+  - name: Flohmarkt Neuss (Möbel Höffner)
+    town: Neuss
+    address: Schanzenstraße 1
+    lat: 51.205
+    lon: 6.715
+    organiser: Melan
+    url: https://www.melan.de/fuer-alle/standorte/details/~/Neuss-MOeBEL-HOeFFNER-267s/
+    time: "11:00–18:00"
+    dates: [2026-10-18]
+
+  - name: Flohmarkt Neuss (Metro)
+    town: Neuss
+    address: Jagenbergstraße 6
+    lat: 51.200
+    lon: 6.705
+    organiser: Melan
+    url: https://www.melan.de/fuer-alle/standorte/details/~/Neuss-METRO-76m/
+    time: "11:00–18:00"
+    dates: [2026-10-25, 2026-11-29, 2026-12-27]
+
+  - name: Flohmarkt Köln-Nippes
+    town: Köln-Nippes
+    address: Wilhelmplatz
+    lat: 50.957
+    lon: 6.954
+    organiser: Cölln Konzept
+    url: https://www.coelln-konzept.de/markt/nippes.html
+    dates: [2026-10-18, 2026-11-29]
+
+  - name: Flohmarkt am RheinEnergieStadion
+    town: Köln-Müngersdorf
+    address: Junkersdorfer Straße, gegenüber der Jahnwiese
+    lat: 50.934
+    lon: 6.873
+    organiser: Cölln Konzept
+    url: https://www.coelln-konzept.de/markt/p6.html
+    dates: [2026-10-18, 2026-12-06]
+
+  - name: Flohmarkt Kölner Altstadt
+    town: Köln-Altstadt
+    address: Rheinpromenade, Konrad-Adenauer-Ufer
+    lat: 50.940
+    lon: 6.962
+    organiser: Cölln Konzept
+    url: https://www.coelln-konzept.de/markt/altstadt.html
+    dates: [2026-10-24, 2026-10-25]
+
+  - name: Flohmarkt Riehler Gürtel
+    town: Köln-Riehl
+    address: Riehler Gürtel, am Seiteneingang des Zoos
+    lat: 50.962
+    lon: 6.973
+    organiser: Cölln Konzept
+    url: https://www.coelln-konzept.de/markt/riehl.html
+    dates: [2026-11-08]
+
+# Ausflugsziele für Familien. type: indoor-play, animals, zoo, pool, monastery, castle, garden
+# free: true, wenn der Eintritt frei ist (sonst weglassen).
+# Family outings. free: true when entry is free (otherwise leave it out).
+family:
+  - name: Leo's Abenteuerpark Pulheim
+    type: indoor-play
+    town: Pulheim
+    address: Siemensstraße 2a
+    lat: 51.003
+    lon: 6.808
+    url: https://www.leosabenteuerpark.de/unsere-abenteuerparks/pulheim
+
+  - name: Abtei Brauweiler
+    type: monastery
+    town: Pulheim-Brauweiler
+    address: Ehrenfriedstraße 19
+    lat: 50.957
+    lon: 6.746
+    url: http://www.abteibrauweiler.lvr.de/
+
+  - name: Kölner Zoo
+    type: zoo
+    town: Köln-Riehl
+    address: Riehler Straße 173
+    lat: 50.958
+    lon: 6.974
+    url: https://www.koelnerzoo.de/
+
+  - name: AQUALAND Freizeitbad
+    type: pool
+    town: Köln-Chorweiler
+    address: Merianstraße 1
+    lat: 51.033
+    lon: 6.885
+    url: https://aqualand.de/
+
+  - name: Tierpark Tannenbusch
+    type: animals
+    town: Dormagen
+    address: Im Tannenbusch
+    lat: 51.080
+    lon: 6.825
+    url: https://www.koeln.de/freizeit/ll/tierparks-in-koeln/tierpark-tannenbusch/
+    free: true
+
+  - name: Kloster Knechtsteden
+    type: monastery
+    town: Dormagen
+    address: Knechtsteden
+    lat: 51.070
+    lon: 6.755
+    url: https://www.kloster-knechtsteden.de
+    free: true
+
+  - name: Schloss Paffendorf
+    type: castle
+    town: Bergheim
+    address: Burggasse
+    lat: 50.966
+    lon: 6.611
+    url: https://schlosspaffendorf.de/das-schloss-paffendorf/
+    free: true
+
+  - name: Japanischer Garten
+    type: garden
+    town: Leverkusen
+    address: Kaiser-Wilhelm-Allee
+    lat: 51.030
+    lon: 7.000
+    url: https://www.leverkusen.de/leben-in-lev/stadtportraet/Japanischer_Garten.php
+    free: true
+
+  - name: Schlösser Brühl (Augustusburg und Falkenlust)
+    type: castle
+    town: Brühl
+    address: Schlossstraße 6
+    lat: 50.826
+    lon: 6.905
+    url: http://www.schlossbruehl.de/

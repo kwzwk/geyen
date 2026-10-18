@@ -93,7 +93,7 @@ const pick = (slugs: string[]) => NAV.filter((n) => slugs.includes(n.slug));
           </div>
           <div>
             <h2>{ui.footVillage}</h2>
-            <ul>{pick(['aktuelles', 'germania', 'termine', 'dorf']).map((n) => <li><a href={href(lang, n.slug)}>{n[lang]}</a></li>)}</ul>
+            <ul>{pick(['aktuelles', 'germania', 'termine', 'aktivitaeten', 'dorf']).map((n) => <li><a href={href(lang, n.slug)}>{n[lang]}</a></li>)}</ul>
           </div>
           <div>
             <h2>{ui.footEveryday}</h2>

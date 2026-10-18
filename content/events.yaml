@@ -1,12 +1,20 @@
 # Termine. Pro Termin nur Fakten + Link zur Ankündigung des Veranstalters.
 # Events: facts only, plus a link to the organiser's own announcement.
-# Felder: date (JJJJ-MM-TT), end (optional), time (optional), title, organiser, url
+# Felder: date (JJJJ-MM-TT), end (optional), time (optional), title, organiser, url,
+#   family: true (optional) = erscheint auch unter Aktivitäten → Für Familien / also listed for families
+- date: 2026-10-16
+  end: 2026-10-20
+  title: Herbstkirmes in Stommeln (Dorfanger und Marktplatz, Dienstag Familientag)
+  organiser: Dorfgemeinschaft Stommeln
+  url: https://dorfgemeinschaft-stommeln.de/
+  family: true
 - date: 2026-10-27
   end: 2026-10-30
   time: "10:00–15:30"
   title: Herbst-Camp für Kinder von 6 bis 13 Jahren
   organiser: SC Germania 1932 Geyen
   url: https://germania-geyen.de/
+  family: true
 - date: 2026-11-06
   title: Letzter Tag der Sammelaktion für Fußballschuhe und Trikots
   organiser: SC Germania 1932 Geyen

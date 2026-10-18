@@ -1,0 +1,77 @@
+---
+import Base from '../../layouts/Base.astro';
+import EventList from '../../components/EventList.astro';
+import { t, langPaths, toLang, NAV, formatDate } from '../../lib/i18n';
+import { markets, outings, familyEvents, radiusKm, type Market } from '../../lib/content';
+
+export const getStaticPaths = langPaths;
+const lang = toLang(Astro.params.lang);
+const ui = t(lang);
+const title = NAV.find((n) => n.slug === 'aktivitaeten')![lang];
+const km = (n: number) => `${Math.round(n)} km ${ui.away}`;
+
+// Group market dates by day so a busy Sunday reads as one block.
+const byDay = new Map<string, Market[]>();
+for (const m of markets) byDay.set(m.date, [...(byDay.get(m.date) ?? []), m]);
+---
+
+<Base lang={lang} slug="aktivitaeten" title={title}>
+  <h1>{title}</h1>
+  <p class="lead">{ui.activitiesLead.replace('{km}', String(radiusKm))}</p>
+  <div class="grid">
+    <section class="card span-2 markets-card">
+      <h2>{ui.fleaMarkets}</h2>
+      {
+        byDay.size ? (
+          <ul class="events">
+            {[...byDay].map(([day, list]) => (
+              <li>
+                <span class="event-date">
+                  <time datetime={day}>{formatDate(lang, day, true)}</time>
+                </span>
+                <ul class="market-list">
+                  {list.map((m) => (
+                    <li>
+                      <a href={m.url} rel="noopener" target="_blank">{m.name}</a>
+                      <span class="meta">
+                        <span>{m.address}, {m.town}</span>
+                        {m.time && <span>{m.time}</span>}
+                        <span>{km(m.km)}</span>
+                        <span>{ui.organiser}: {m.organiser}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="empty">{ui.noMarkets}</p>
+        )
+      }
+    </section>
+    <section class="card">
+      <h2>{ui.familyEvents}</h2>
+      <EventList lang={lang} items={familyEvents} />
+    </section>
+  </div>
+  <h2 class="section-title">{ui.familyOutings}</h2>
+  <div class="shops">
+    {
+      outings.map((p) => (
+        <article class="shop">
+          <header>
+            <h3>{p.name}</h3>
+            <span class="category">{ui.placeTypes[p.type] ?? p.type}</span>
+            {p.free && <span class="badge free">{ui.freeEntry}</span>}
+          </header>
+          <p class="address">{p.address}, {p.town} · {km(p.km)}</p>
+          <p class="shop-links">
+            <a href={p.url} rel="noopener" target="_blank">{ui.website}</a>
+          </p>
+        </article>
+      ))
+    }
+  </div>
+  <p class="muted small">{ui.externalNote}</p>
+</Base>
