@@ -242,3 +242,33 @@ family:
     lat: 50.826
     lon: 6.905
     url: http://www.schlossbruehl.de/
+
+# Wöchentlich gelesene Flohmarkt-Termine (Veranstaltungskalender von koeln.de, nur Datum, Titel, Ort, Link).
+# Ergänzt die Liste oben; doppelte Termine (gleiches Datum, gleiche Straße) zeigt die Seite nur einmal.
+# Weekly flea market dates from koeln.de's events calendar API. Adds to the list above; duplicates
+# (same date and street) are shown once. Set refreshDays to change the schedule.
+marketFeed:
+  name: koeln.de
+  api: https://www.koeln.de/wp-json/tribe/events/v1/events
+  search: [Flohmarkt, Trödelmarkt]
+  refreshDays: 7
+  daysAhead: 70
+
+# Ortsmitten für Termine aus dem Kalender (der liefert keine Koordinaten). Orte, die hier fehlen, werden
+# nicht angezeigt. Town centres for calendar dates; towns missing here are not shown.
+towns:
+  Köln: { lat: 50.938, lon: 6.960 }
+  Pulheim: { lat: 50.999, lon: 6.806 }
+  Frechen: { lat: 50.912, lon: 6.812 }
+  Hürth: { lat: 50.877, lon: 6.876 }
+  Bergheim: { lat: 50.955, lon: 6.640 }
+  Kerpen: { lat: 50.870, lon: 6.696 }
+  Brühl: { lat: 50.829, lon: 6.904 }
+  Dormagen: { lat: 51.095, lon: 6.840 }
+  Leverkusen: { lat: 51.031, lon: 6.985 }
+  Rommerskirchen: { lat: 51.034, lon: 6.689 }
+  Grevenbroich: { lat: 51.090, lon: 6.584 }
+  Elsdorf: { lat: 50.937, lon: 6.567 }
+  Bedburg: { lat: 51.000, lon: 6.565 }
+  Wesseling: { lat: 50.826, lon: 6.977 }
+  Bergisch Gladbach: { lat: 50.992, lon: 7.136 }

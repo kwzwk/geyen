@@ -66,7 +66,7 @@ Everything you edit lives in `content/`:
 | `sources.yaml` | News feeds (optionally filtered by place names), single article links (title is read automatically), club calendar feeds |
 | `shops.yaml` | Shops with address, phone, owner's link and opening hours (OpenStreetMap syntax) |
 | `events.yaml` | Events: date, title, organiser, link to the organiser's announcement; `family: true` also lists it under Aktivitäten |
-| `activities.yaml` | Flea market venues with their dates and family outings, each with approximate coordinates. The Aktivitäten page shows only upcoming dates and places within `radiusKm` (25 km) of Geyen |
+| `activities.yaml` | Flea market venues with their dates and family outings, each with approximate coordinates. The Aktivitäten page shows only upcoming dates and places within `radiusKm` (25 km) of Geyen. Once a week (`marketFeed.refreshDays`) the builder also reads flea market dates from the koeln.de events calendar API; towns must be listed under `towns` to count |
 | `links.yaml` | Link lists: emergency numbers, city services, clubs, social profiles, football club, journey planners |
 | `transit.yaml` | Timetable source, which stops count as Geyen, the transfer hubs (Pulheim Bahnhof, Köln-Weiden West) and the Köln destinations |
 

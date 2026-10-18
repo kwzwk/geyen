@@ -182,6 +182,70 @@ async function fetchCalendars(calendars, previous) {
   return result;
 }
 
+const DAY_MS = 86_400_000;
+const berlinDate = (ms) => new Date(ms).toLocaleDateString('sv-SE', { timeZone: 'Europe/Berlin' });
+
+/** Turns one event from a WordPress "The Events Calendar" REST API into a market entry, or null. */
+export function toMarket(e, source) {
+  const title = cleanTitle(decodeEntities(String(e.title ?? '')));
+  const [date, clock] = String(e.start_date ?? '').split(' ');
+  if (!title || !/^\d{4}-\d{2}-\d{2}$/.test(date ?? '') || !isHttpUrl(e.url)) return null;
+  const v = e.venue && !Array.isArray(e.venue) ? e.venue : {};
+  const endClock = String(e.end_date ?? '').split(' ')[1];
+  const hhmm = (t) => t?.slice(0, 5);
+  const time = e.all_day || !clock ? undefined : hhmm(endClock) && endClock !== clock ? `${hhmm(clock)}–${hhmm(endClock)}` : hhmm(clock);
+  return {
+    id: e.id,
+    date,
+    ...(time ? { time } : {}),
+    name: title,
+    address: cleanTitle(decodeEntities(String(v.address ?? v.venue ?? ''))),
+    venue: cleanTitle(decodeEntities(String(v.venue ?? ''))),
+    zip: String(v.zip ?? ''),
+    town: cleanTitle(decodeEntities(String(v.city ?? ''))),
+    url: e.url,
+    organiser: source,
+  };
+}
+
+/**
+ * Flea market dates from an events calendar API (content/activities.yaml → marketFeed).
+ * Refreshed once every refreshDays; in between, and when the source fails, the last result is kept.
+ */
+async function fetchMarkets(feed, previous, now = Date.now()) {
+  if (!feed?.api) return previous;
+  const refreshMs = (feed.refreshDays ?? 7) * DAY_MS;
+  if (previous.fetchedAt && now - Date.parse(previous.fetchedAt) < refreshMs) {
+    log(`markets: kept ${previous.items?.length ?? 0} from ${previous.fetchedAt}`);
+    return previous;
+  }
+  try {
+    const byId = new Map();
+    for (const term of feed.search ?? ['Flohmarkt']) {
+      for (let page = 1; page <= (feed.maxPages ?? 5); page++) {
+        const url = new URL(feed.api);
+        url.searchParams.set('search', term);
+        url.searchParams.set('start_date', berlinDate(now));
+        url.searchParams.set('end_date', berlinDate(now + (feed.daysAhead ?? 70) * DAY_MS));
+        url.searchParams.set('per_page', '50');
+        url.searchParams.set('page', String(page));
+        const data = JSON.parse(await fetchText(url.href));
+        for (const e of data.events ?? []) {
+          const m = toMarket(e, feed.name ?? url.hostname);
+          if (m) byId.set(`${m.id}-${m.date}`, m);
+        }
+        if (page >= (data.total_pages ?? 1)) break;
+      }
+    }
+    const items = [...byId.values()].sort((a, b) => a.date.localeCompare(b.date));
+    log(`markets: ${items.length} dates from ${feed.name ?? feed.api}`);
+    return { fetchedAt: new Date(now).toISOString(), items };
+  } catch (error) {
+    log(`markets: failed (${error.message ?? error}), keeping ${previous.items?.length ?? 0} cached`);
+    return previous;
+  }
+}
+
 async function main() {
   await mkdir(DATA_DIR, { recursive: true });
   const sources = YAML.parse(await readFile(path.join(CONTENT_DIR, 'sources.yaml'), 'utf8')) ?? {};
@@ -193,6 +257,12 @@ async function main() {
 
   const previousCalendars = await readJson('calendars.json', {});
   await writeJson('calendars.json', await fetchCalendars(sources.calendars ?? [], previousCalendars));
+
+  let activities = {};
+  try {
+    activities = YAML.parse(await readFile(path.join(CONTENT_DIR, 'activities.yaml'), 'utf8')) ?? {};
+  } catch {}
+  await writeJson('markets.json', await fetchMarkets(activities.marketFeed, await readJson('markets.json', {})));
 
   await writeJson('status.json', { fetchedAt: new Date().toISOString(), feeds: status });
 }

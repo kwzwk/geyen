@@ -106,7 +106,14 @@ export const events: Event[] = [...manualEvents, ...feedEvents]
 interface Place { name: string; town: string; address: string; lat: number; lon: number; url: string }
 interface MarketVenue extends Place { organiser: string; time?: string; dates: (string | Date)[] }
 interface FamilyPlace extends Place { type: string; free?: boolean }
-interface Activities { center?: { lat: number; lon: number }; radiusKm?: number; markets?: MarketVenue[]; family?: FamilyPlace[] }
+interface Activities {
+  center?: { lat: number; lon: number };
+  radiusKm?: number;
+  markets?: MarketVenue[];
+  family?: FamilyPlace[];
+  towns?: Record<string, { lat: number; lon: number }>;
+}
+interface FetchedMarket { date: string; time?: string; name: string; address: string; town: string; url: string; organiser: string }
 
 const activities = yaml<Activities>('activities.yaml', {});
 const center = activities.center ?? { lat: 50.9817, lon: 6.7864 };
@@ -123,13 +130,27 @@ export const distanceKm = (a: { lat: number; lon: number }, b: { lat: number; lo
 const isoDate = (d: string | Date) => (d instanceof Date ? d.toISOString() : String(d)).slice(0, 10);
 const nearby = <T extends Place>(p: T) => ({ ...p, km: distanceKm(center, p) });
 
-export type Market = Omit<MarketVenue, 'dates'> & { date: string; km: number };
-/** Upcoming flea market dates within radiusKm, soonest first, nearest first on the same day. */
-export const markets: Market[] = (activities.markets ?? [])
+export type Market = Omit<MarketVenue, 'dates' | 'lat' | 'lon'> & { date: string; km: number };
+const manualMarkets: Market[] = (activities.markets ?? [])
   .map(nearby)
-  .filter((m) => m.km <= radiusKm)
-  .flatMap(({ dates, ...m }) => dates.map((d) => ({ ...m, date: isoDate(d) })))
-  .filter((m) => m.date >= today)
+  .flatMap(({ dates, lat, lon, ...m }) => dates.map((d) => ({ ...m, date: isoDate(d) })));
+
+// Dates read once a week from the events calendar (scripts/fetch.mjs → markets.json). The feed has no
+// coordinates, so the distance is that of the town's centre from the towns list; unknown towns are left out.
+const towns = new Map(Object.entries(activities.towns ?? {}).map(([k, v]) => [k.toLowerCase(), v]));
+const fetchedMarkets: Market[] = json<{ items?: FetchedMarket[] }>('markets.json', {}).items?.flatMap((m) => {
+  const at = towns.get(m.town.toLowerCase());
+  return at ? [{ ...m, km: distanceKm(center, at) }] : [];
+}) ?? [];
+
+// The same market can be in both lists; the hand-written entry wins. Matched by date and street.
+const street = (address: string) => address.toLowerCase().replace(/stra(ss|ß)e|str\./g, 'str').replace(/[^\p{L}]/gu, '');
+const marketKey = (m: Market) => `${m.date} ${street(m.address)}`;
+const manualKeys = new Set(manualMarkets.map(marketKey));
+
+/** Upcoming flea market dates within radiusKm, soonest first, nearest first on the same day. */
+export const markets: Market[] = [...manualMarkets, ...fetchedMarkets.filter((m) => !manualKeys.has(marketKey(m)))]
+  .filter((m) => m.km <= radiusKm && m.date >= today)
   .sort((a, b) => a.date.localeCompare(b.date) || a.km - b.km);
 
 export type Outing = FamilyPlace & { km: number };
