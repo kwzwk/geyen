@@ -13,19 +13,13 @@ const i = site.impressum ?? ({} as typeof site.impressum);
   <h1>Impressum</h1>
   {lang === 'en' && <p class="lead">The legal notice is provided in German, as required by German law.</p>}
   <section class="card prose" lang="de">
-    <h2>Angaben gemäß § 5 DDG</h2>
-    <p>
-      {i.name}<br />
-      {i.street}<br />
-      {i.city}
-    </p>
     <h2>Kontakt</h2>
     <p>
       E-Mail: <a href={`mailto:${i.email}`}>{i.email}</a>
       {i.phone && (<><br />Telefon: {i.phone}</>)}
     </p>
     <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
-    <p>{i.name}, Anschrift wie oben</p>
+    <p>{i.name}</p>
     <h2>Hinweis zu Inhalten Dritter</h2>
     <p>
       geyen.org ist ein privates, nicht kommerzielles Verzeichnis. Die Seite zeigt Schlagzeilen, Termine und
